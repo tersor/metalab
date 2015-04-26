@@ -3,7 +3,6 @@
 .htaccess
 debug.log
 local-config.php
-wp-cli.yml
 config.yaml
 wp-content/uploads
 wp-content/upgrade
