@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 4.2.x package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-07-23 22:03:44+0000\n"
+"PO-Revision-Date: 2015-08-02 17:06:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -442,7 +442,7 @@ msgstr "Det ser ikke ut til at det finnes noen fil <code>wp-config.php</code>. D
 msgid "Links for %s"
 msgstr "Lenker for %s"
 
-#: wp-includes/wp-db.php:2977
+#: wp-includes/wp-db.php:2979
 msgid "<strong>ERROR</strong>: WordPress %1$s requires MySQL %2$s or higher"
 msgstr "<strong>FEIL</strong>: WordPress %1$s krever MySQL %2$s eller høyere"
 
@@ -635,16 +635,16 @@ msgstr "(WordPress kunne ikke etablere en sikker forbindelse til WordPress.org. 
 msgid "An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href=\"https://wordpress.org/support/\">support forums</a>."
 msgstr "En uventet feil skjedde. Noe er kanskje galt med WordPress.org eller denne serverkonfigurasjonen. Hvis problemene fortsetter, vennligst prøv <a href=\"https://wordpress.org/support/\">supportforumene</a>."
 
-#: wp-includes/theme.php:1969
+#: wp-includes/theme.php:1948
 msgid "Customizer"
 msgstr "Tematilpasser"
 
 #. translators: 1: Theme support 2: hook name
-#: wp-includes/theme.php:1635
+#: wp-includes/theme.php:1614
 msgid "Theme support for %1$s should be registered before the %2$s hook."
 msgstr "Temastøtte for %1$s bør registreres før %2$s."
 
-#: wp-includes/theme.php:1504
+#: wp-includes/theme.php:1483
 msgid "You need to pass an array of types."
 msgstr "Du må bruke en array med typer."
 
@@ -767,7 +767,7 @@ msgstr "Dette innlegget er passordbeskyttet. Du må oppgi passord for å se komm
 
 #: wp-includes/theme-compat/comments-popup.php:120
 msgid "Powered by <a href=\"%s\" title=\"Powered by WordPress, state-of-the-art semantic personal publishing platform\"><strong>WordPress</strong></a>"
-msgstr "Drives med <a href=\"%s\" title=\"Drives med WordPress, en toppmoderne emantisk publiseringsplattform\"><strong>WordPress</strong></a>"
+msgstr "Drives med <a href=\"%s\" title=\"Drives med WordPress, en toppmoderne semantisk publiseringsplattform\"><strong>WordPress</strong></a>"
 
 #: wp-includes/theme-compat/comments-popup.php:116
 msgid "Sorry, no posts matched your criteria."
@@ -1567,33 +1567,33 @@ msgstr "I <code>%1$s</code>, bruk metoden <code>%2$s</code>, ikke funksjonen <co
 msgid "Conditional query tags do not work before the query is run. Before then, they always return false."
 msgstr "Betingede spørringer fungerer ikke fungerer ikke før spørringen er utført. Før det skjer, returnerer de alltid \"false\"."
 
-#: wp-includes/post.php:3891 wp-includes/script-loader.php:449
+#: wp-includes/post.php:3892 wp-includes/script-loader.php:449
 #: wp-includes/script-loader.php:510
 msgctxt "tag delimiter"
 msgid ","
 msgstr ","
 
-#: wp-includes/post.php:3459
+#: wp-includes/post.php:3460
 msgid "The page template is invalid."
 msgstr "Sidemalen er ugyldig."
 
-#: wp-includes/post.php:3395
+#: wp-includes/post.php:3396
 msgid "Could not insert post into the database"
 msgstr "Kunne ikke lagre innlegget i databasen"
 
-#: wp-includes/post.php:3380
+#: wp-includes/post.php:3381
 msgid "Could not update post in the database"
 msgstr "Kunne ikke oppdatere innlegget i databasen"
 
-#: wp-includes/post.php:3236
+#: wp-includes/post.php:3237
 msgid "Whoops, the provided date is invalid."
 msgstr "Beklager, den angitte datoen er ugyldig."
 
-#: wp-includes/post.php:3168
+#: wp-includes/post.php:3169
 msgid "Content, title, and excerpt are empty."
 msgstr "Innhold, tittel og utdrag er tomme."
 
-#: wp-includes/post.php:3011
+#: wp-includes/post.php:3012
 msgid "Passing an integer number of posts is deprecated. Pass an array of arguments instead."
 msgstr "Passing an integer number of posts is deprecated. Pass an array of arguments instead."
 
@@ -3633,12 +3633,12 @@ msgstr "Rediger dette"
 msgid "Comments Feed"
 msgstr "Kommentarstrøm"
 
-#: wp-includes/l10n.php:940
+#: wp-includes/l10n.php:944
 msgctxt "translations"
 msgid "Available"
 msgstr "Tilgjengelig"
 
-#: wp-includes/l10n.php:922
+#: wp-includes/l10n.php:926
 msgctxt "translations"
 msgid "Installed"
 msgstr "Installert"
@@ -4128,33 +4128,33 @@ msgid "ERROR: This is not a valid feed template."
 msgstr "FEIL: Dette er ikke en gyldig feed-mal."
 
 #. translators: used to join items in a list with only 2 items
-#: wp-includes/formatting.php:3798
+#: wp-includes/formatting.php:3830
 msgid "%s and %s"
 msgstr "%s og %s"
 
 #. translators: used to join last two items in a list with more than 2 times
-#: wp-includes/formatting.php:3796
+#: wp-includes/formatting.php:3828
 msgid "%s, and %s"
 msgstr "%s og %s"
 
 #. translators: used to join items in a list with more than 2 items
-#: wp-includes/formatting.php:3794
+#: wp-includes/formatting.php:3826
 msgid "%s, %s"
 msgstr "%s, %s"
 
-#: wp-includes/formatting.php:3580
+#: wp-includes/formatting.php:3612
 msgid "The timezone you have entered is not valid. Please select a valid timezone."
 msgstr "Tidssonen du har skrevet inn er ikke gyldig. Vennligst velg en gyldig tidssone."
 
-#: wp-includes/formatting.php:3525
+#: wp-includes/formatting.php:3557
 msgid "The Site address you entered did not appear to be a valid URL. Please enter a valid URL."
 msgstr "Nettstedsadressen du skrev inn virker ikke å være en gyldig URL. Vennligst skriv inn en gyldig URL."
 
-#: wp-includes/formatting.php:3512
+#: wp-includes/formatting.php:3544
 msgid "The WordPress address you entered did not appear to be a valid URL. Please enter a valid URL."
 msgstr "WordPress-adressen som du skrev inn virker ikke å være en gyldig URL. Vennligst skriv inn en gyldig URL."
 
-#: wp-includes/formatting.php:3412
+#: wp-includes/formatting.php:3444
 msgid "The email address entered did not appear to be a valid email address. Please enter a valid email address."
 msgstr "E-postadressen som du skrev inn virker ikke å være en gyldig adresse. Vennligst skriv inn en gyldig e-postadresse."
 
@@ -4164,47 +4164,47 @@ msgstr "E-postadressen som du skrev inn virker ikke å være en gyldig adresse. 
 #. translators: If your word count is based on single characters (East Asian
 #. characters), 		   enter 'characters'. Otherwise, enter 'words'. Do not
 #. translate into your own language.
-#: wp-includes/formatting.php:2738 wp-includes/script-loader.php:379
+#: wp-includes/formatting.php:2770 wp-includes/script-loader.php:379
 msgctxt "word count: words or characters?"
 msgid "words"
 msgstr "words"
 
-#: wp-includes/formatting.php:2733 wp-includes/general-template.php:2721
+#: wp-includes/formatting.php:2765 wp-includes/general-template.php:2721
 msgid "&hellip;"
 msgstr "&hellip;"
 
-#: wp-includes/formatting.php:2646
+#: wp-includes/formatting.php:2678
 msgid "%s year"
 msgid_plural "%s years"
 msgstr[0] "%s år"
 msgstr[1] "%s år"
 
-#: wp-includes/formatting.php:2641
+#: wp-includes/formatting.php:2673
 msgid "%s month"
 msgid_plural "%s months"
 msgstr[0] "%s måned"
 msgstr[1] "%s måneder"
 
-#: wp-includes/formatting.php:2636
+#: wp-includes/formatting.php:2668
 msgid "%s week"
 msgid_plural "%s weeks"
 msgstr[0] "%s uke"
 msgstr[1] "%s uker"
 
-#: wp-includes/formatting.php:2631
+#: wp-includes/formatting.php:2663
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] "%s dag"
 msgstr[1] "%s dager"
 
-#: wp-includes/formatting.php:2626
+#: wp-includes/formatting.php:2658
 msgid "%s hour"
 msgid_plural "%s hours"
 msgstr[0] "%s time"
 msgstr[1] "%s timer"
 
 #. translators: min=minute
-#: wp-includes/formatting.php:2621
+#: wp-includes/formatting.php:2653
 msgid "%s min"
 msgid_plural "%s mins"
 msgstr[0] "%s minutt"
@@ -4259,7 +4259,7 @@ msgid "&#8221;"
 msgstr "&raquo;"
 
 #. translators: opening curly double quote
-#: wp-includes/formatting.php:62 wp-includes/formatting.php:4035
+#: wp-includes/formatting.php:62 wp-includes/formatting.php:4067
 msgctxt "opening curly double quote"
 msgid "&#8220;"
 msgstr "&laquo;"
@@ -5354,8 +5354,8 @@ msgstr "Beklager, du har ikke tillatelse til å redigere dette innlegget."
 #: wp-includes/class-wp-xmlrpc-server.php:4986
 #: wp-includes/class-wp-xmlrpc-server.php:5476
 #: wp-includes/class-wp-xmlrpc-server.php:5524
-#: wp-includes/class-wp-xmlrpc-server.php:5648 wp-includes/post.php:3124
-#: wp-includes/post.php:3582
+#: wp-includes/class-wp-xmlrpc-server.php:5648 wp-includes/post.php:3125
+#: wp-includes/post.php:3583
 msgid "Invalid post ID."
 msgstr "Ugyldig innlegg-ID."
 
@@ -5747,7 +5747,7 @@ msgstr "Din nettleser støtter ikke direktetilgang til din utklippstavle. Vennli
 
 #: wp-includes/class-wp-editor.php:974 wp-includes/script-loader.php:395
 #: wp-includes/script-loader.php:474 wp-includes/script-loader.php:482
-#: wp-includes/script-loader.php:586 wp-includes/theme.php:1968
+#: wp-includes/script-loader.php:586 wp-includes/theme.php:1947
 msgid "The changes you made will be lost if you navigate away from this page."
 msgstr "Endringene du gjorde vil bli borte hvis du navigerer bort fra denne siden."
 

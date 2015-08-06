@@ -1657,23 +1657,23 @@ msgstr "&larr; Tilbake til redigering av innlegget"
 msgid "Compare Revisions of &#8220;%1$s&#8221;"
 msgstr "Sammenlign revisjoner av &laquo;%1$s&raquo;"
 
-#: wp-admin/post.php:288
+#: wp-admin/post.php:289
 msgid "This item has already been deleted."
 msgstr "Elementet har allerede blitt slettet."
 
-#: wp-admin/post.php:276
+#: wp-admin/post.php:277
 msgid "You are not allowed to move this item out of the Trash."
 msgstr "Du har ikke lov til å flytte dette ut av papirkurven."
 
-#: wp-admin/post.php:270
+#: wp-admin/post.php:271
 msgid "The item you are trying to restore from the Trash no longer exists."
 msgstr "Elementet du prøvde å gjenopprette fra papirkurven finnes ikke lengre."
 
-#: wp-admin/post.php:257
+#: wp-admin/post.php:258
 msgid "You cannot move this item to the Trash. %s is currently editing."
 msgstr "Du kan ikke flytte dette elementet til Papirkurven. %s arbeider med det nå."
 
-#: wp-admin/post.php:247
+#: wp-admin/post.php:248
 msgid "The item you are trying to move to the Trash no longer exists."
 msgstr "Elementet du prøvde å flytte til papirkurven finnes ikke lengre."
 
@@ -6605,16 +6605,16 @@ msgid "%1$s <span class=\"count\">(%2$s)</span>"
 msgstr "%1$s <span class=\"count\">(%2$s)</span>"
 
 #. translators: 1: Error code, 2: Error message.
-#: wp-admin/includes/class-wp-upgrader.php:3214
+#: wp-admin/includes/class-wp-upgrader.php:3217
 msgid "Error: [%1$s] %2$s"
 msgstr "Feil: [%1$s] %2$s"
 
 #. translators: 1: Error code, 2: Error message.
-#: wp-admin/includes/class-wp-upgrader.php:3211
+#: wp-admin/includes/class-wp-upgrader.php:3214
 msgid "Rollback Error: [%1$s] %2$s"
 msgstr "Rollback-feil: [%1$s] %2$s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3187
+#: wp-admin/includes/class-wp-upgrader.php:3190
 msgid ""
 "UPDATE LOG\n"
 "=========="
@@ -6622,15 +6622,15 @@ msgstr ""
 "OPPDATERINGSLOGG\n"
 "================"
 
-#: wp-admin/includes/class-wp-upgrader.php:3184
+#: wp-admin/includes/class-wp-upgrader.php:3187
 msgid "[%s] Background updates have finished"
 msgstr "[%s] Bakgrunnsoppdateringene er klare"
 
-#: wp-admin/includes/class-wp-upgrader.php:3182
+#: wp-admin/includes/class-wp-upgrader.php:3185
 msgid "[%s] There were failures during background updates"
 msgstr "[%s] Det skjedde feil i løpet av bakgrunnsoppdateringene"
 
-#: wp-admin/includes/class-wp-upgrader.php:3169
+#: wp-admin/includes/class-wp-upgrader.php:3172
 msgid ""
 "BETA TESTING?\n"
 "=============\n"
@@ -6656,312 +6656,312 @@ msgstr ""
 "\n"
 "-- WordPress-teamet"
 
-#: wp-admin/includes/class-wp-upgrader.php:3159
+#: wp-admin/includes/class-wp-upgrader.php:3162
 msgid "FAILED: %s"
 msgstr "FEILET: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3153
+#: wp-admin/includes/class-wp-upgrader.php:3156
 msgid "The following translations failed to update:"
 msgstr "Følgende oversettelser kunne ikke oppdateres:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3152
+#: wp-admin/includes/class-wp-upgrader.php:3155
 msgid "The following themes failed to update:"
 msgstr "Følgende temaer kunne ikke oppdateres:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3151
+#: wp-admin/includes/class-wp-upgrader.php:3154
 msgid "The following plugins failed to update:"
 msgstr "Følgende utvidelser kunne ikke oppdateres:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3145
+#: wp-admin/includes/class-wp-upgrader.php:3148
 msgid "SUCCESS: %s"
 msgstr "VELLYKKET: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3140
+#: wp-admin/includes/class-wp-upgrader.php:3143
 msgid "The following translations were successfully updated:"
 msgstr "Følgende oversettelser ble korrekt oppdaterte:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3139
+#: wp-admin/includes/class-wp-upgrader.php:3142
 msgid "The following themes were successfully updated:"
 msgstr "Følgende temaer ble korrekt oppdaterte:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3138
+#: wp-admin/includes/class-wp-upgrader.php:3141
 msgid "The following plugins were successfully updated:"
 msgstr "Følgende utvidelser ble korrekt oppdaterte:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3125
+#: wp-admin/includes/class-wp-upgrader.php:3128
 msgid "FAILED: WordPress failed to update to %s"
 msgstr "FEILET: Wordpress ble ikke oppdatert til %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3123
+#: wp-admin/includes/class-wp-upgrader.php:3126
 msgid "SUCCESS: WordPress was successfully updated to %s"
 msgstr "VELLYKKET: WordPress ble oppdatert til %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3117
+#: wp-admin/includes/class-wp-upgrader.php:3120
 msgid "WordPress site: %s"
 msgstr "WordPress-nettsted: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3063
+#: wp-admin/includes/class-wp-upgrader.php:3066
 msgid "Error code: %s"
 msgstr "Feilkode: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:3050
+#: wp-admin/includes/class-wp-upgrader.php:3053
 msgid "Your hosting company, support forum volunteers, or a friendly developer may be able to use this information to help you:"
 msgstr "Din webhost, frivillige i supportforumet eller vennligsinnede utviklere kan kanskje bruke denne informasjonen for å hjelpe deg:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3049
+#: wp-admin/includes/class-wp-upgrader.php:3052
 msgid "We have some data that describes the error your site encountered."
 msgstr "Vi har noe data som beskriver feilen som ditt nettsted opplevde."
 
-#: wp-admin/includes/class-wp-upgrader.php:3048
+#: wp-admin/includes/class-wp-upgrader.php:3051
 msgid "Your site was running version %s."
 msgstr "Ditt nettsted kjørte versjon %s."
 
-#: wp-admin/includes/class-wp-upgrader.php:3044
+#: wp-admin/includes/class-wp-upgrader.php:3047
 msgid "The WordPress Team"
 msgstr "WordPress-teamet"
 
-#: wp-admin/includes/class-wp-upgrader.php:3040
+#: wp-admin/includes/class-wp-upgrader.php:3043
 msgid "You also have some plugins or themes with updates available. Update them now:"
 msgstr "Du har også noen utvidelser eller temaer som har tilgjengelige oppdateringer. Oppdater dem nå:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3035
+#: wp-admin/includes/class-wp-upgrader.php:3038
 msgid "If you reach out to us, we'll also ensure you'll never have this problem again."
 msgstr "Hvis du når ut til oss, vil vi også gjøre vårt ytterste for at du aldri skal måtte ha dette problemet igjen."
 
-#: wp-admin/includes/class-wp-upgrader.php:3031 wp-admin/update-core.php:478
+#: wp-admin/includes/class-wp-upgrader.php:3034 wp-admin/update-core.php:478
 msgid "Keeping your site updated is important for security. It also makes the internet a safer place for you and your readers."
 msgstr "Å holde nettstedet oppdatert er viktig for sikkerheten. Det gjør også Internett til et tryggere sted for deg og dine lesere."
 
-#: wp-admin/includes/class-wp-upgrader.php:3025
+#: wp-admin/includes/class-wp-upgrader.php:3028
 msgid "If you experience any issues or need support, the volunteers in the WordPress.org support forums may be able to help."
 msgstr "Hvis du opplever noen problemer eller trenger støtte, kan kanskje de frivillige i WordPress.org supportforum hjelpe deg."
 
-#: wp-admin/includes/class-wp-upgrader.php:3022
+#: wp-admin/includes/class-wp-upgrader.php:3025
 msgid "The WordPress team is willing to help you. Forward this email to %s and the team will work with you to make sure your site is working."
 msgstr "Wordpress-teamet er klare for å hjelpe deg. Send denne e-posten videre til %s, og teamet vil jobbe for å få ditt nettsted til å fungere."
 
-#: wp-admin/includes/class-wp-upgrader.php:3014
+#: wp-admin/includes/class-wp-upgrader.php:3017
 msgid "Please check out your site now. It's possible that everything is working. If it says you need to update, you should do so:"
 msgstr "Vennligst sjekk ditt nettsted nå. Det er mulig at alt fungerer. Hvis det sier at du må oppdatere, bør du gjøre dette:"
 
-#: wp-admin/includes/class-wp-upgrader.php:3012
+#: wp-admin/includes/class-wp-upgrader.php:3015
 msgid "This means your site may be offline or broken. Don't panic; this can be fixed."
 msgstr "Dette betyr at ditt nettsted kan være utilgjengelig eller ødelagt. Men, foreløpig ingen grunn til panikk; dette kan vi fikse."
 
-#: wp-admin/includes/class-wp-upgrader.php:3010
+#: wp-admin/includes/class-wp-upgrader.php:3013
 msgid "Your site at %1$s experienced a critical failure while trying to update to the latest version of WordPress, %2$s."
 msgstr "Ditt nettsted på %1$s fikk en kritisk feil mens det prøvde å oppdatere seg selv til siste versjon av WordPress, %2$s."
 
-#: wp-admin/includes/class-wp-upgrader.php:3008
+#: wp-admin/includes/class-wp-upgrader.php:3011
 msgid "Your site at %1$s experienced a critical failure while trying to update WordPress to version %2$s."
 msgstr "Det skjedde en kritisk feil når ditt nettsted på %1$s skulle oppdatere WordPress til versjon %2$s."
 
-#: wp-admin/includes/class-wp-upgrader.php:3000
+#: wp-admin/includes/class-wp-upgrader.php:3003
 msgid "We tried but were unable to update your site automatically."
 msgstr "Vi forsøkte, men klarte ikke å oppdatere ditt nettsted automatisk."
 
-#: wp-admin/includes/class-wp-upgrader.php:2993
+#: wp-admin/includes/class-wp-upgrader.php:2996
 msgid "Please update your site at %1$s to WordPress %2$s."
 msgstr "Vennligst oppdater ditt nettsted på %1$s til WordPress %2$s."
 
-#: wp-admin/includes/class-wp-upgrader.php:2985
-#: wp-admin/includes/class-wp-upgrader.php:3002
+#: wp-admin/includes/class-wp-upgrader.php:2988
+#: wp-admin/includes/class-wp-upgrader.php:3005
 msgid "Updating is easy and only takes a few moments:"
 msgstr "Å oppdatere er lett, og tar kun få minutter:"
 
-#: wp-admin/includes/class-wp-upgrader.php:2984
+#: wp-admin/includes/class-wp-upgrader.php:2987
 msgid "WordPress %s is also now available."
 msgstr "WordPress %s er nå også tilgjengelig."
 
-#: wp-admin/includes/class-wp-upgrader.php:2980
+#: wp-admin/includes/class-wp-upgrader.php:2983
 msgid "For more on version %s, see the About WordPress screen:"
 msgstr "For mer om versjon %s, se Om WordPress-skjermen:"
 
-#: wp-admin/includes/class-wp-upgrader.php:2976
+#: wp-admin/includes/class-wp-upgrader.php:2979
 msgid "No further action is needed on your part."
 msgstr "Du trenger ikke å gjøre noe mer!"
 
-#: wp-admin/includes/class-wp-upgrader.php:2973
+#: wp-admin/includes/class-wp-upgrader.php:2976
 msgid "Howdy! Your site at %1$s has been updated automatically to WordPress %2$s."
 msgstr "Hei! Ditt nettsted på %1$s har blitt oppdatert automatisk til WordPress %2$s."
 
 #. translators: 1: Site name.
-#: wp-admin/includes/class-wp-upgrader.php:2958
+#: wp-admin/includes/class-wp-upgrader.php:2961
 msgid "[%1$s] URGENT: Your site may be down due to a failed update"
 msgstr "[%1$s] HASTER: Ditt nettsted kan være nede på grunn av en mislykket oppdatering"
 
 #. translators: 1: Site name, 2: WordPress version number.
-#: wp-admin/includes/class-wp-upgrader.php:2953
+#: wp-admin/includes/class-wp-upgrader.php:2956
 msgid "[%1$s] WordPress %2$s is available. Please update!"
 msgstr "[%1$s] WordPress %2$s er tilgjengelig. Vennligst oppdater!"
 
 #. translators: 1: Site name, 2: WordPress version number.
-#: wp-admin/includes/class-wp-upgrader.php:2947
+#: wp-admin/includes/class-wp-upgrader.php:2950
 msgid "[%1$s] Your site has updated to WordPress %2$s"
 msgstr "[%1$s] Ditt nettsted har blitt oppdatert til WordPress %2$s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2672
+#: wp-admin/includes/class-wp-upgrader.php:2675
 #: wp-admin/includes/update-core.php:1177 wp-admin/update-core.php:432
 msgid "WordPress updated successfully"
 msgstr "Oppdateringen av WordPress var vellykket"
 
-#: wp-admin/includes/class-wp-upgrader.php:2670 wp-admin/update-core.php:427
+#: wp-admin/includes/class-wp-upgrader.php:2673 wp-admin/update-core.php:427
 msgid "Installation Failed"
 msgstr "Installasjon feilet"
 
-#: wp-admin/includes/class-wp-upgrader.php:2641
+#: wp-admin/includes/class-wp-upgrader.php:2644
 msgid "Translations for %s"
 msgstr "Oversettelser for %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2637
+#: wp-admin/includes/class-wp-upgrader.php:2640
 msgid "Updating plugin: %s"
 msgstr "Oppdaterer utvidelse: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2631
+#: wp-admin/includes/class-wp-upgrader.php:2634
 msgid "Updating theme: %s"
 msgstr "Oppdaterer tema: %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2625
+#: wp-admin/includes/class-wp-upgrader.php:2628
 msgid "WordPress %s"
 msgstr "WordPress %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2624
+#: wp-admin/includes/class-wp-upgrader.php:2627
 msgid "Updating to WordPress %s"
 msgstr "Oppdaterer til WordPress %s"
 
-#: wp-admin/includes/class-wp-upgrader.php:2287
-#: wp-admin/includes/class-wp-upgrader.php:2321
+#: wp-admin/includes/class-wp-upgrader.php:2290
+#: wp-admin/includes/class-wp-upgrader.php:2324
 msgid "Please select a file"
 msgstr "Vennligst velg en fil"
 
-#: wp-admin/includes/class-wp-upgrader.php:2025
+#: wp-admin/includes/class-wp-upgrader.php:2028
 #: wp-admin/includes/update-core.php:820 wp-admin/includes/update-core.php:895
 #: wp-admin/includes/update-core.php:918
 msgid "The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions."
 msgstr "Oppdateringen kan ikke installeres fordi at noen av filene ikke vil kunne kopieres. Dette er som regel på grunn av inkonsekvente filrettigheter."
 
-#: wp-admin/includes/class-wp-upgrader.php:1940
+#: wp-admin/includes/class-wp-upgrader.php:1943
 msgid "Due to an error during updating, WordPress has rolled back to your previous version."
 msgstr "På grunn av en feil under oppdatering, har WordPress blitt rullet tilbake til den forrige versjonen."
 
-#: wp-admin/includes/class-wp-upgrader.php:1939
+#: wp-admin/includes/class-wp-upgrader.php:1942
 msgid "Attempting to roll back to previous version."
 msgstr "Prøver å rulle tilbake til den forrige versjonen."
 
-#: wp-admin/includes/class-wp-upgrader.php:1938 wp-admin/includes/file.php:621
+#: wp-admin/includes/class-wp-upgrader.php:1941 wp-admin/includes/file.php:621
 #: wp-admin/includes/file.php:725
 msgid "Could not copy files. You may have run out of disk space."
 msgstr "Kunne ikke kopiere filer. Du kan ha gått tom for lagringsplass."
 
-#: wp-admin/includes/class-wp-upgrader.php:1937
+#: wp-admin/includes/class-wp-upgrader.php:1940
 msgid "Could not copy files."
 msgstr "Kunne ikke kopiere filer."
 
-#: wp-admin/includes/class-wp-upgrader.php:1933
+#: wp-admin/includes/class-wp-upgrader.php:1936
 msgid "WordPress is at the latest version."
 msgstr "WordPress er nyeste versjon."
 
-#: wp-admin/includes/class-wp-upgrader.php:1883
+#: wp-admin/includes/class-wp-upgrader.php:1886
 msgid "The language pack is missing either the <code>.po</code> or <code>.mo</code> files."
 msgstr "Språkpakken mangler enten <code>.po</code>- eller <code>.mo</code>-filene."
 
-#: wp-admin/includes/class-wp-upgrader.php:1706
+#: wp-admin/includes/class-wp-upgrader.php:1709
 msgid "Translation updated successfully."
 msgstr "Oppdateringen av oversettelser var vellykket."
 
-#: wp-admin/includes/class-wp-upgrader.php:1705
+#: wp-admin/includes/class-wp-upgrader.php:1708
 msgid "Translation update failed."
 msgstr "Oppdatering av oversettelser mislyktes."
 
-#: wp-admin/includes/class-wp-upgrader.php:1703
+#: wp-admin/includes/class-wp-upgrader.php:1706
 msgid "Downloading translation from <span class=\"code\">%s</span>&#8230;"
 msgstr "Laster ned oversettelser fra <span class=\"code\">%s</span>&#8230;"
 
-#: wp-admin/includes/class-wp-upgrader.php:1701
+#: wp-admin/includes/class-wp-upgrader.php:1704
 msgid "The translation is up to date."
 msgstr "Oversettelsene er oppdaterte."
 
-#: wp-admin/includes/class-wp-upgrader.php:1700
+#: wp-admin/includes/class-wp-upgrader.php:1703
 msgid "Some of your translations need updating. Sit tight for a few more seconds while we update them as well."
 msgstr "Noen av dine oversettelser må oppdateres. Sitt i ro noen sekunder mens vi oppdaterer dem også."
 
-#: wp-admin/includes/class-wp-upgrader.php:1500
+#: wp-admin/includes/class-wp-upgrader.php:1503
 msgid "The theme is missing the <code>index.php</code> file."
 msgstr "Temaet mangler filen <code>index.php</code>."
 
-#: wp-admin/includes/class-wp-upgrader.php:1496
+#: wp-admin/includes/class-wp-upgrader.php:1499
 msgid "The <code>style.css</code> stylesheet doesn't contain a valid theme header."
 msgstr "Stilsettet <code>style.css</code> inneholder et gyldig hode for et tema."
 
-#: wp-admin/includes/class-wp-upgrader.php:1491
+#: wp-admin/includes/class-wp-upgrader.php:1494
 msgid "The theme is missing the <code>style.css</code> stylesheet."
 msgstr "Temaet mangler stilsettet <code>style.css</code>."
 
-#: wp-admin/includes/class-wp-upgrader.php:1147
+#: wp-admin/includes/class-wp-upgrader.php:1150
 msgid "<strong>The parent theme could not be found.</strong> You will need to install the parent theme, <strong>%s</strong>, before you can use this child theme."
 msgstr "<strong>Foreldretemaet ble ikke funnet.</strong> Du må installere foreldretemaet, <strong>%s</strong>, før du kan bruke dette dattertemaet."
 
 #. translators: 1: theme name, 2: version
-#: wp-admin/includes/class-wp-upgrader.php:1146
+#: wp-admin/includes/class-wp-upgrader.php:1149
 msgid "Successfully installed the parent theme, <strong>%1$s %2$s</strong>."
 msgstr "Vellykket installasjon av foreldretema, <strong>%1$s %2$s</strong>."
 
 #. translators: 1: theme name, 2: version
-#: wp-admin/includes/class-wp-upgrader.php:1144
+#: wp-admin/includes/class-wp-upgrader.php:1147
 msgid "The parent theme, <strong>%1$s %2$s</strong>, is currently installed."
 msgstr "Foreldretemaet, <strong>%1$s %2$s</strong>, er installert."
 
 #. translators: 1: theme name, 2: version
-#: wp-admin/includes/class-wp-upgrader.php:1142
+#: wp-admin/includes/class-wp-upgrader.php:1145
 msgid "Preparing to install <strong>%1$s %2$s</strong>&#8230;"
 msgstr "Forbereder installasjon av <strong>%1$s %2$s</strong>&#8230;"
 
-#: wp-admin/includes/class-wp-upgrader.php:1140
+#: wp-admin/includes/class-wp-upgrader.php:1143
 msgid "This theme requires a parent theme. Checking if it is installed&#8230;"
 msgstr "Temaet forutsetter et foreldretema. Sjekker om det er installert&#8230;"
 
 #. translators: 1: theme name, 2: version
-#: wp-admin/includes/class-wp-upgrader.php:1139
+#: wp-admin/includes/class-wp-upgrader.php:1142
 msgid "Successfully installed the theme <strong>%1$s %2$s</strong>."
 msgstr "Suksess: <strong>%1$s %2$s</strong> temaet er installert."
 
-#: wp-admin/includes/class-wp-upgrader.php:1137
+#: wp-admin/includes/class-wp-upgrader.php:1140
 msgid "Theme installed successfully."
 msgstr "Tema installert med suksess."
 
-#: wp-admin/includes/class-wp-upgrader.php:1136
+#: wp-admin/includes/class-wp-upgrader.php:1139
 msgid "Theme install failed."
 msgstr "Installer tema feilet."
 
-#: wp-admin/includes/class-wp-upgrader.php:1135
+#: wp-admin/includes/class-wp-upgrader.php:1138
 msgid "The theme contains no files."
 msgstr "Temaet inneholder ingen filer."
 
-#: wp-admin/includes/class-wp-upgrader.php:1134
+#: wp-admin/includes/class-wp-upgrader.php:1137
 msgid "Installing the theme&#8230;"
 msgstr "Installerer temaet&#8230;"
 
-#: wp-admin/includes/class-wp-upgrader.php:1122
+#: wp-admin/includes/class-wp-upgrader.php:1125
 msgid "Theme updated successfully."
 msgstr "Tema oppdatert."
 
-#: wp-admin/includes/class-wp-upgrader.php:1121
+#: wp-admin/includes/class-wp-upgrader.php:1124
 msgid "Theme update failed."
 msgstr "Temaoppdateringen mislyktes."
 
-#: wp-admin/includes/class-wp-upgrader.php:1120
+#: wp-admin/includes/class-wp-upgrader.php:1123
 msgid "Could not remove the old theme."
 msgstr "Kunne ikke fjerne det gamle temaet."
 
-#: wp-admin/includes/class-wp-upgrader.php:1119
+#: wp-admin/includes/class-wp-upgrader.php:1122
 msgid "Removing the old version of the theme&#8230;"
 msgstr "Fjerner den gamle versjonen av temaet&#8230;"
 
-#: wp-admin/includes/class-wp-upgrader.php:1115
+#: wp-admin/includes/class-wp-upgrader.php:1118
 msgid "The theme is at the latest version."
 msgstr "Dette temaet er nyeste versjon."
 
-#: wp-admin/includes/class-wp-upgrader.php:984
+#: wp-admin/includes/class-wp-upgrader.php:987
 msgid "No valid plugins were found."
 msgstr "Ingen gyldige utvidelser ble funnet."
 
@@ -6982,17 +6982,17 @@ msgid "Installing the plugin&#8230;"
 msgstr "Installerer utvidelsen&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:699
-#: wp-admin/includes/class-wp-upgrader.php:1133
+#: wp-admin/includes/class-wp-upgrader.php:1136
 msgid "Unpacking the package&#8230;"
 msgstr "Pakker ut pakken&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:698
-#: wp-admin/includes/class-wp-upgrader.php:1132
+#: wp-admin/includes/class-wp-upgrader.php:1135
 msgid "Downloading install package from <span class=\"code\">%s</span>&#8230;"
 msgstr "Laster ned installasjonspakke fra <span class=\"count\">(%s)</span>&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:697
-#: wp-admin/includes/class-wp-upgrader.php:1131
+#: wp-admin/includes/class-wp-upgrader.php:1134
 msgid "Install package not available."
 msgstr "Installeringspakke ikke tilgjengelig."
 
@@ -7017,22 +7017,22 @@ msgid "Removing the old version of the plugin&#8230;"
 msgstr "Fjerner den gamle versjonen av utvidelsen&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:683
-#: wp-admin/includes/class-wp-upgrader.php:1118
-#: wp-admin/includes/class-wp-upgrader.php:1704
-#: wp-admin/includes/class-wp-upgrader.php:1936
+#: wp-admin/includes/class-wp-upgrader.php:1121
+#: wp-admin/includes/class-wp-upgrader.php:1707
+#: wp-admin/includes/class-wp-upgrader.php:1939
 msgid "Unpacking the update&#8230;"
 msgstr "Pakker ut oppdateringen&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:682
-#: wp-admin/includes/class-wp-upgrader.php:1117
-#: wp-admin/includes/class-wp-upgrader.php:1935
+#: wp-admin/includes/class-wp-upgrader.php:1120
+#: wp-admin/includes/class-wp-upgrader.php:1938
 msgid "Downloading update from <span class=\"code\">%s</span>&#8230;"
 msgstr "Laster ned oppdatering fra <span class=\"code\">%s</span>&#8230;"
 
 #: wp-admin/includes/class-wp-upgrader.php:681
-#: wp-admin/includes/class-wp-upgrader.php:1116
-#: wp-admin/includes/class-wp-upgrader.php:1702
-#: wp-admin/includes/class-wp-upgrader.php:1934
+#: wp-admin/includes/class-wp-upgrader.php:1119
+#: wp-admin/includes/class-wp-upgrader.php:1705
+#: wp-admin/includes/class-wp-upgrader.php:1937
 msgid "Update package not available."
 msgstr "Oppdateringspakken ikke tilgjengelig."
 
@@ -7103,7 +7103,7 @@ msgid "Filesystem error."
 msgstr "Filsystem-feil."
 
 #: wp-admin/includes/class-wp-upgrader.php:120
-#: wp-admin/includes/class-wp-upgrader.php:2664 wp-admin/includes/file.php:527
+#: wp-admin/includes/class-wp-upgrader.php:2667 wp-admin/includes/file.php:527
 #: wp-admin/includes/plugin.php:795 wp-admin/includes/theme.php:53
 msgid "Could not access filesystem."
 msgstr "Kunne ikke lese filsystemet."
@@ -7113,7 +7113,7 @@ msgid "Invalid Data provided."
 msgstr "Ugyldig data angitt"
 
 #: wp-admin/includes/class-wp-upgrader-skins.php:668
-#: wp-admin/includes/class-wp-upgrader.php:2642
+#: wp-admin/includes/class-wp-upgrader.php:2645
 msgid "Updating translations for %1$s (%2$s)&#8230;"
 msgstr "Oppdaterer oversettelser for %1$s (%2$s)&#8230;"
 
@@ -9042,16 +9042,16 @@ msgstr "Skjerminnhold"
 msgid "This screen provides access to all of your posts. You can customize the display of this screen to suit your workflow."
 msgstr "Dette skjermbildet gir deg tilgang til alle dine innlegg. Du kan tilpasse visningen av skjermbildet slik at det passer til din måte å jobbe."
 
-#: wp-admin/edit.php:131 wp-admin/edit.php:134 wp-admin/post.php:300
-#: wp-admin/post.php:303 wp-admin/upload.php:156
+#: wp-admin/edit.php:131 wp-admin/edit.php:134 wp-admin/post.php:301
+#: wp-admin/post.php:304 wp-admin/upload.php:156
 msgid "Error in deleting."
 msgstr "Feil under sletting."
 
-#: wp-admin/edit.php:127 wp-admin/post.php:294
+#: wp-admin/edit.php:127 wp-admin/post.php:295
 msgid "You are not allowed to delete this item."
 msgstr "Du har ikke lov til å slettet denne."
 
-#: wp-admin/edit.php:115 wp-admin/post.php:279
+#: wp-admin/edit.php:115 wp-admin/post.php:280
 msgid "Error in restoring from Trash."
 msgstr "Feil under gjenoppretting fra papirkurven."
 
@@ -9059,11 +9059,11 @@ msgstr "Feil under gjenoppretting fra papirkurven."
 msgid "You are not allowed to restore this item from the Trash."
 msgstr "Du har ikke lov til å gjenopprette dette fra papirkurven."
 
-#: wp-admin/edit.php:101 wp-admin/post.php:261
+#: wp-admin/edit.php:101 wp-admin/post.php:262
 msgid "Error in moving to Trash."
 msgstr "Feil under flytting til papirkurven."
 
-#: wp-admin/edit.php:93 wp-admin/post.php:253
+#: wp-admin/edit.php:93 wp-admin/post.php:254
 msgid "You are not allowed to move this item to the Trash."
 msgstr "Du har ikke lov til å flytte dette til papirkurven."
 
@@ -10405,8 +10405,8 @@ msgstr "Rediger"
 msgid "You are not allowed to edit this item."
 msgstr "Du har ikke lov til å redigere dette."
 
-#: wp-admin/async-upload.php:55 wp-admin/post.php:154 wp-admin/post.php:250
-#: wp-admin/post.php:273 wp-admin/post.php:291
+#: wp-admin/async-upload.php:55 wp-admin/post.php:154 wp-admin/post.php:251
+#: wp-admin/post.php:274 wp-admin/post.php:292
 msgid "Unknown post type."
 msgstr "Ukjent innleggstype."
 
@@ -10444,165 +10444,167 @@ msgstr "Takk for at du skaper med <a href=\"%s\">WordPress</a>."
 
 #. translators: 1: WordPress version number, 2: plural number of bugs. Singular
 #. security issue.
-#: wp-admin/about.php:171
+#: wp-admin/about.php:179
 msgid "<strong>Version %1$s</strong> addressed a security issue and fixed %2$s bug."
 msgid_plural "<strong>Version %1$s</strong> addressed a security issue and fixed %2$s bugs."
 msgstr[0] "<strong>Versjon %1$s</strong> tettet et sikkerhetshull og rettet %2$s programfeil."
 msgstr[1] "<strong>Versjon %1$s</strong> tettet et sikkerhetshull og rettet %2$s programfeil."
 
 #. translators: 1: WordPress version number, 2: plural number of bugs.
-#: wp-admin/about.php:167
+#: wp-admin/about.php:175
 msgid "<strong>Version %1$s</strong> addressed %2$s bug."
 msgid_plural "<strong>Version %1$s</strong> addressed %2$s bugs."
 msgstr[0] "<strong>Versjon %1$s</strong> rettet %2$s programfeil."
 msgstr[1] "<strong>Versjon %1$s</strong> rettet %2$s programfeil."
 
-#: wp-admin/about.php:159
+#: wp-admin/about.php:167
 msgid "Security Release"
 msgid_plural "Security Releases"
 msgstr[0] "Sikkerhetsoppdatering"
 msgstr[1] "Sikkerhetsoppdateringer"
 
-#: wp-admin/about.php:158
+#: wp-admin/about.php:166
 msgid "Maintenance Release"
 msgid_plural "Maintenance Releases"
 msgstr[0] "Vedlikeholdsoppdatering"
 msgstr[1] "Vedlikeholdsoppdateringer"
 
-#: wp-admin/about.php:146
+#: wp-admin/about.php:154
 msgid "Go to Dashboard"
 msgstr "Gå til kontrollpanel"
 
-#: wp-admin/about.php:146
+#: wp-admin/about.php:154
 msgid "Go to Dashboard &rarr; Home"
 msgstr "Gå til Kontrollpanel &rarr; Hjem"
 
-#: wp-admin/about.php:142
+#: wp-admin/about.php:150
 msgid "Return to Dashboard &rarr; Updates"
 msgstr "Tilbake til Kontrollpanel &rarr; Oppdateringer"
 
-#: wp-admin/about.php:142
+#: wp-admin/about.php:150
 msgid "Return to Updates"
 msgstr "Tilbake til oppdateringer"
 
 #. translators: 1: WP_Query, 2: WP_Comment_Query, 3: WP_User_Query
-#: wp-admin/about.php:133
+#: wp-admin/about.php:141
 msgid "%1$s, %2$s, and %3$s now support complex ordering with named meta query clauses."
 msgstr "%1$s, %2$s og %3$s støtter nå kompleks rekkefølge med navngitte metaspørringsklausuler."
 
-#: wp-admin/about.php:130
+#: wp-admin/about.php:138
 msgid "Complex query ordering"
 msgstr "Kompleks rekkefølge på spørringer"
 
 #. translators: 1: Term splitting guide link
-#: wp-admin/about.php:127
+#: wp-admin/about.php:135
 msgid "Terms shared across multiple taxonomies will be split when one of them is updated. Find out more in the <a href=\"%1$s\">Plugin Developer Handbook</a>."
 msgstr "Termer delt over flere taksonomier vil bli delt opp når én av dem oppdateres. Finn ut mer i <a href=\"%1$s\">Utviklerhåndboken for utvidelser</a>."
 
-#: wp-admin/about.php:124
+#: wp-admin/about.php:132
 msgid "Shared term splitting"
 msgstr "Deling av delte termer"
 
 #. translators: %s wp.a11y.speak()
-#: wp-admin/about.php:120
+#: wp-admin/about.php:128
 msgid "You can now send audible notifications to screen readers in JavaScript with %s. Pass it a string, and an update will be sent to a dedicated ARIA live notifications area."
 msgstr "Du kan nå sende hørbare varsler til skjermlesere i JavaScript med %s. Send det en tekststreng, og en oppdatering vil bli sendt til et dedikert ARIA live varslingsområde."
 
-#: wp-admin/about.php:117
+#: wp-admin/about.php:125
 msgid "JavaScript accessibility"
 msgstr "JavaScript-tilgjengelighet"
 
-#: wp-admin/about.php:115
+#: wp-admin/about.php:123
 msgid "Database character encoding has changed from utf8 to utf8mb4, which adds support for a whole range of new 4-byte characters."
 msgstr "Tegnkodingen i databasen er endret fra utf8 til utf8mb4, som betyr støtte for en hel serie av nye 4-byte tegn."
 
-#: wp-admin/about.php:114
+#: wp-admin/about.php:122
 msgid "utf8mb4 support"
 msgstr "Støtte for utf8mb4"
 
-#: wp-admin/about.php:110
+#: wp-admin/about.php:118
 msgid "Under the Hood"
 msgstr "Under panseret"
 
-#: wp-admin/about.php:105
+#: wp-admin/about.php:113
 msgid "Goodbye boring loading screen, hello smooth and simple plugin updates. Click <em>Update&nbsp;Now</em> and watch the magic happen."
 msgstr "Farvel til kjedelige innlastingsskjermer, hallo til strømlinjeformede og enkle utvidelsesoppdateringer. Klikk <em>Oppdater&nbsp;nå</em> og opplev magien."
 
-#: wp-admin/about.php:104
+#: wp-admin/about.php:112
 msgid "Streamlined plugin updates"
 msgstr "Strømlinjeformede oppdateringer av utvidelser"
 
-#: wp-admin/about.php:100
+#: wp-admin/about.php:108
 msgid "Paste links from Tumblr.com and Kickstarter and watch them magically appear right in the editor. With every release, your publishing and editing experience get closer together."
 msgstr "Lim inn lenker fra Tumblr.com og Kickstarter og se dem bygges inn automatisk rett i tekstbehandleren. Hver nye utgave av WordPress gjør publiserings- og redigerings&shy;opplevelsen mer sømløs."
 
-#: wp-admin/about.php:99
+#: wp-admin/about.php:107
 msgid "Even more embeds"
 msgstr "Enda flere innbygginger"
 
-#: wp-admin/about.php:95
+#: wp-admin/about.php:103
 msgid "Browse and preview your installed themes from the Customizer. Make sure the theme looks great with <em>your</em> content, before it debuts on your site. "
 msgstr "Bla i og forhåndsvis dine installerte temaer fra tematilpasseren. Forsikre deg om at temaet ser bra ut med <em>ditt</em> innhold, før det får sin debut på ditt nettsted."
 
-#: wp-admin/about.php:94
+#: wp-admin/about.php:102
 msgid "Switch themes in the Customizer"
 msgstr "Bytt temaer i tematilpasseren"
 
-#: wp-admin/about.php:86
+#: wp-admin/about.php:94
 msgid "https://codex.wordpress.org/Emoji"
 msgstr "https://codex.wordpress.org/Emoji"
 
 #. translators: 1: heart emoji, 2: frog face emoji, 3, monkey emoji, 4: pizza
 #. emoji, 5: Emoji Codex link
-#: wp-admin/about.php:86
+#: wp-admin/about.php:94
 msgid "Don&#8217;t use any of those characters? You can still have fun &mdash; emoji are now available in WordPress! Get creative and decorate your content with %1$s, %2$s, %3$s, %4$s, and all the many other <a href=\"%5$s\">emoji</a>."
 msgstr "Bruker du ikke noen av de tegnene? Du kan fortsatt ha det gøy: emoji er nå tilgjengelig i WordPress! Så slå deg løs og dekorér innholdet ditt med %1$s, %2$s, %3$s, %4$s, og alle de andre <a href=\"%5$s\">emojiene</a>. "
 
-#: wp-admin/about.php:83
+#: wp-admin/about.php:91
 msgid "Writing in WordPress, whatever your language, just got better. WordPress 4.2 supports a host of new characters out-of-the-box, including native Chinese, Japanese, and Korean characters, musical and mathematical symbols, and hieroglyphs."
 msgstr "Å skrive i WordPress, uansett språk, har akkurat blitt bedre. WordPress støtter stadig flere språk. Nytt i 4.2 er kinesiske, japanske og koreanske tegn, i tillegg til musikalske og matematiske symboler, samt hieroglyfer. "
 
-#: wp-admin/about.php:82
+#: wp-admin/about.php:90
 msgid "Extended character support"
 msgstr "Støtte for flere tegn og bokstaver"
 
-#: wp-admin/about.php:68 wp-admin/tools.php:16 wp-admin/tools.php:40
+#: wp-admin/about.php:76 wp-admin/tools.php:16 wp-admin/tools.php:40
 #: wp-admin/tools.php:51
 msgid "Press This"
 msgstr "Skriv om dette"
 
-#: wp-admin/about.php:65 wp-admin/tools.php:48
+#: wp-admin/about.php:73 wp-admin/tools.php:48
 msgid "Drag the bookmarklet below to your bookmarks bar. Then, when you&#8217;re on a page you want to share, simply &#8220;press&#8221; it."
 msgstr "Dra bokmerkeskriptet nedenfor til dine bokmerker. Da kan du enkelt skrive om en nettside som du har lyst å dele."
 
-#: wp-admin/about.php:64
+#: wp-admin/about.php:72
 msgid "Clip it, edit it, publish it. Get familiar with the new and improved Press This. From the <a href=\"%s\">Tools</a> menu, add Press This to your browser bookmark bar or your mobile device home screen. Once installed you can share your content with lightning speed. Sharing your favorite videos, images, and content has never been this fast or this easy."
 msgstr "Klipp det, rediger det, publiser det. Bli kjent med den nye og forbedrede «Skriv om dette». I <a href=\"%s\">Verktøy</a>-menyen finner du «Skriv om dette»-appen, som du kan dra til din nettlesers bokmerkerad eller din mobile enhets hjem-skjerm. Etter at den er installert kan du dele ditt innhold lynraskt. Å dele dine favorittfilmer, -bilder og annet innhold har aldri være så raskt og enkelt."
 
-#: wp-admin/about.php:63
+#: wp-admin/about.php:71
 msgid "An easier way to share content"
 msgstr "En enklere måte å dele innhold"
 
 #. translators: 1: WordPress version number.
-#: wp-admin/about.php:49 wp-admin/about.php:163
+#: wp-admin/about.php:57 wp-admin/about.php:171
 msgid "<strong>Version %1$s</strong> addressed a security issue."
 msgid_plural "<strong>Version %1$s</strong> addressed some security issues."
 msgstr[0] "<strong>Versjon %1$s</strong> tettet et sikkerhetshull."
 msgstr[1] "<strong>Versjon %1$s</strong> tettet noen sikkerhetshull."
 
-#: wp-admin/about.php:47 wp-admin/about.php:51 wp-admin/about.php:178
+#: wp-admin/about.php:47 wp-admin/about.php:51 wp-admin/about.php:55
+#: wp-admin/about.php:59 wp-admin/about.php:186
 msgid "For more information, see <a href=\"%s\">the release notes</a>."
 msgstr "For mer informasjon, se <a href=\"%s\">versjonsmerknadene</a>."
 
 #. translators: 1: WordPress version number, 2: plural number of bugs. More
 #. than one security issue.
-#: wp-admin/about.php:45 wp-admin/about.php:175
+#: wp-admin/about.php:45 wp-admin/about.php:49 wp-admin/about.php:53
+#: wp-admin/about.php:183
 msgid "<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bug."
 msgid_plural "<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bugs."
 msgstr[0] "<strong>Versjon %1$s</strong> tettet noen sikkerhetshull og rettet %2$s programfeil."
 msgstr[1] "<strong>Versjon %1$s</strong> tettet noen sikkerhetshull og rettet %2$s programfeil."
 
-#: wp-admin/about.php:44 wp-admin/about.php:160
+#: wp-admin/about.php:44 wp-admin/about.php:168
 msgid "Maintenance and Security Release"
 msgid_plural "Maintenance and Security Releases"
 msgstr[0] "Vedlikeholds- og sikkerhetsoppdatering"
