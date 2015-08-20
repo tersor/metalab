@@ -26,10 +26,6 @@ msgstr "Ditt Pro-abonnement lar deg kun bruke Akismet på ett nettsted. Vennligs
 msgid "To continue your service, <a href=\"%s\" target=\"_blank\">upgrade to an Enterprise subscription</a>, which covers an unlimited number of sites."
 msgstr "For å fortsette med tjenesten, <a href=\"%s\" target=\"_blank\">oppgrader til et enterprise-abonnement</a>, som er gyldig for et ubegrenset antall nettsteder."
 
-#: views/notice.php:79
-msgid "Since 2012, Akismet began using subscriptions for all accounts (even free ones). It looks like a subscription has not been assigned to your account, and we’d appreciate it if you’d <a href=\"%s\" target=\"_blank\">sign into your account</a> and choose one."
-msgstr "Siden 2012, har Akismet brukt abonnementer for alle kontoer (også gratis-kontoer). Det ser ut til at et abonnement ikke har blitt tildelt din konto, og vi setter pris på om du vil <a href=\"%s\" target=\"_blank\">logge inn i din konto</a> og velge et."
-
 #: class.akismet-admin.php:515
 msgid "Akismet caught this comment as spam."
 msgstr "Akismet tror at denne kommentaren er useriøs."
@@ -78,14 +74,6 @@ msgstr "%1$s endret status på kommentaren til %2$s."
 msgid "Akismet was unable to recheck this comment (response: %s)."
 msgstr "Akismet kunne ikke sjekke denne kommentaren på nytt (respons: %s)."
 
-#: views/notice.php:98
-msgid "The key you entered could not be verified."
-msgstr "Nøkkelen du skrev inn kunne ikke verifiseres."
-
-#: views/notice.php:99
-msgid "The connection to akismet.com cannot be established. Please refer to <a href=\"%s\" target=\"_blank\">our guide about firewalls</a> and check your server configuration."
-msgstr "Koblingen til akismet.com kunne ikke etableres. Vennligst se <a href=\"%s\" target=\"_blank\">vår guide til brannmurer</a> og sjekk din serverkonfigurasjon."
-
 #: views/config.php:95
 msgid "All systems functional."
 msgstr "Alle systemer fungerer."
@@ -120,10 +108,6 @@ msgid_plural "Spam in the <a href=\"%1$s\">spam folder</a> older than %2$d days 
 msgstr[0] "Useriøse innlegg i <a href=\"%1$s\">Useriøs-mappen</a> som er eldre enn 1 dag, slettes automatisk."
 msgstr[1] "Useriøse innlegg i <a href=\"%1$s\">Useriøs-mappen</a> som er eldre enn %2$d dager, slettes automatisk."
 
-#. Description of the plugin/theme
-msgid "Used by millions, Akismet is quite possibly the best way in the world to <strong>protect your blog from comment and trackback spam</strong>. It keeps your site protected from spam even while you sleep. To get started: 1) Click the \"Activate\" link to the left of this description, 2) <a href=\"http://akismet.com/get/\">Sign up for an Akismet API key</a>, and 3) Go to your Akismet configuration page, and save your API key."
-msgstr "Benyttet av millioner, er Akismet muligens den beste måten i verden å <strong>beskytte din blogg fra useriøse innlegg og tilbaketråkk</strong>. Den holder nettstedet ditt beskyttet, selv når du sover. For å komme i gang: 1) Klikk «Aktiver»-lenken til venstre for denne beskrivelsen. 2) <a href=\"http://akismet.com/get/\">Registrer deg, for å motta en Akismet API-nøkkel</a>. 3) Gå til din Akismet konfigurasjonsside og lagre API-nøkkelen."
-
 #. Plugin URI of the plugin/theme
 msgid "http://akismet.com/"
 msgstr "http://akismet.com/"
@@ -136,21 +120,13 @@ msgstr "Vennligst sjekk din <a href=\"%s\">Akismet-konfigurasjon</a> og kontakt 
 msgid "Some comments have not yet been checked for spam by Akismet. They have been temporarily held for moderation and will automatically be rechecked later."
 msgstr "Noen kommentarer har ikke blitt spam-sjekket av Akismet ennå. De har midlertidig blitt satt i køen for moderasjon og vil bli sjekket igjen senere automatisk."
 
-#: views/notice.php:43
-msgid "Your web host or server administrator has disabled PHP&#8217;s <code>gethostbynamel</code> functions.  <strong>Akismet cannot work correctly until this is fixed.</strong>  Please contact your web host or firewall administrator and give them <a href=\"%s\" target=\"_blank\">this information about Akismet&#8217;s system requirements</a>."
-msgstr "Din web-host eller server-administrator har deaktivert PHPs <code>gethostbynamel</code>-funksjoner. <strong>Akismet kan ikke fungere inntil dette er rettet opp.</strong> Vennligst kontakt din web-host eller brannmur-administrator og gi dem <a href=\"%s\" target=\"_blank\">denne informasjonen om Akismets systemkrav</a>."
-
 #: views/start.php:77
 msgid "Activate Akismet"
 msgstr "Aktiver Akismet"
 
-#: views/start.php:64 views/start.php:85
+#: views/start.php:85
 msgid "If you already know your API key."
 msgstr "Hvis du allerede kjenner din API-nøkkel."
-
-#: views/start.php:78
-msgid "Log in or create an account to get your API key."
-msgstr "Logg inn eller lag en konto for å få din API-nøkkel."
 
 #: views/start.php:80
 msgid "Get your API key"
@@ -184,10 +160,6 @@ msgstr "Ikke noe abonnement funnet"
 msgid "Active"
 msgstr "Aktiv"
 
-#: views/notice.php:72
-msgid "There is a problem with your key."
-msgstr "Det er et problem med din nøkkel."
-
 #: class.akismet-admin.php:196 views/config.php:114
 msgid "Strictness"
 msgstr "Strenghet"
@@ -208,10 +180,6 @@ msgstr "Legg alltid useriøst innhold for gjennomgang i mappen Useriøse."
 msgid "Comments"
 msgstr "Kommentarer"
 
-#: views/notice.php:77
-msgid "Your subscription is missing."
-msgstr "Ditt abonnement mangler."
-
 #: views/notice.php:111
 msgid "You&#8217;re using Akismet on far too many sites for your Pro subscription."
 msgstr "Du bruker Akismet på altfor mange nettsteder for ditt Pro-abonnement."
@@ -219,10 +187,6 @@ msgstr "Du bruker Akismet på altfor mange nettsteder for ditt Pro-abonnement."
 #: views/notice.php:104
 msgid "You&#8217;re using your Akismet key on more sites than your Pro subscription allows."
 msgstr "Du bruker din Akismet-nøkkel på flere nettsteder enn ditt Pro-abonnement tillater."
-
-#: views/notice.php:86
-msgid "Your Akismet account has been successfully set up and activated. Happy blogging!"
-msgstr "Din Akismet-konto har blitt opprettet og aktivert. God blogging!"
 
 #: views/notice.php:27
 msgid "Akismet %s requires WordPress 3.0 or higher."
@@ -248,15 +212,7 @@ msgstr "Automattic"
 msgid "http://automattic.com/wordpress-plugins/"
 msgstr "http://automattic.com/wordpress-plugins/"
 
-#: views/notice.php:57
-msgid "Your subscription is cancelled."
-msgstr "Ditt abonnement er avsluttet."
-
-#: views/start.php:50
-msgid "Use this Akismet account"
-msgstr "Bruk denne Akismet-kontoen"
-
-#: views/start.php:63 views/start.php:84
+#: views/start.php:84
 msgid "Manually enter an API key"
 msgstr "Sett inn en API-nøkkel manuelt"
 
@@ -272,10 +228,6 @@ msgstr "Vennligst kontakt <a href=\"%s\" target=\"_blank\">Akismet brukerstøtte
 msgid "Contact Akismet support"
 msgstr "Kontakt Akismet brukerstøtte"
 
-#: views/notice.php:62
-msgid "Your subscription is suspended."
-msgstr "Ditt abonnement er avsluttet."
-
 #: views/strict.php:4
 msgid "Strict: silently discard the worst and most pervasive spam."
 msgstr "Strengt: forkast det verste og mest utbredte useriøse innholdet."
@@ -288,71 +240,19 @@ msgstr "Strenghet for filtrering i Akismet "
 msgid "Akismet Error Code: %s"
 msgstr "Akismet feilkode: %s"
 
-#: views/notice.php:47
-msgid "We can&#8217;t connect to your site."
-msgstr "Vi klarer ikke koble til ditt nettsted,"
-
-#: views/start.php:18 views/start.php:32
-msgid "Akismet eliminates the comment and trackback spam you get on your site."
-msgstr "Akismet hindrer useriøse kommentarer og tilbakesporinger fra å komme inn på ditt nettsted."
-
-#: views/start.php:40 views/start.php:74
-msgid "Akismet eliminates the comment and trackback spam you get on your site. To setup Akismet, select one of the options below."
-msgstr "Akismet hindrer useriøse kommentarer og tilbakesporinger fra å komme inn på ditt nettsted. For å sette opp Akismet velger du en av alternativene nedenfor."
-
-#: views/start.php:57
-msgid "Use this option if you want to setup a new Akismet account."
-msgstr "Bruk dette alternativet hvis du ønsker å opprette en ny Akismet-konto."
-
 #. translators: the placeholder is a clickable URL that leads to more
 #. information regarding an error code.
 #: views/notice.php:35
 msgid "For more information: %s"
 msgstr "For mer informasjon: %s"
 
-#: views/start.php:14
-msgid "Register Akismet"
-msgstr "Registrer Akismet"
-
 #: views/notice.php:68
 msgid "You can help us fight spam and upgrade your account by <a href=\"%s\" target=\"_blank\">contributing a token amount</a>."
 msgstr "Du kan hjelpe oss bekjemte useriøst innhold og oppgradere din konto ved <a href=\"%s\" target=\"_blank\">å bidra med et selvvalgt beløp</a>."
 
-#: views/start.php:59
-msgid "Register a different email address"
-msgstr "Registrer en annen epostadresse."
-
-#: views/start.php:56
-msgid "Create a new API key with a different email address"
-msgstr "Opprett en ny API-nøkkel med en annen epostadresse"
-
-#: views/start.php:36
-msgid "No worries! Get in touch and we&#8217;ll help sort this out."
-msgstr "Ingen bekymringer! Ta kontakt med oss og vi vil hjelpe med å finne ut av dette."
-
-#: views/notice.php:48
-msgid "Your firewall may be blocking us. Please contact your host and refer to <a href=\"%s\" target=\"_blank\">our guide about firewalls</a>."
-msgstr "Din brannmur blokkerer oss kanskje ute. Vennligst ta kontakt med din web-vert og vis til<a href=\"%s\" target=\"_blank\">vår veiledning om brannmurer</a>."
-
 #: views/strict.php:5
 msgid "Safe: always put spam in the Spam folder for review."
 msgstr "Trygg: legg alltid useriøst innhold for gjennomgang i Useriøs-mappen."
-
-#: views/start.php:4
-msgid "Akismet eliminates the comment and trackback spam you get on your site. Register your email address below to get started."
-msgstr "Akismet eliminerer de useriøse kommentarer og tilbakesporinger du mottar på ditt nettsted. Registrer din eposadresse nedenfor for å komme i gang."
-
-#: views/notice.php:52
-msgid "Please update your payment details."
-msgstr "Vennlist oppdater dine betalingsdetaljer."
-
-#: views/notice.php:53
-msgid "We cannot process your transaction. Please contact your bank for assistance, and <a href=\"%s\" target=\"_blank\">update your payment details</a>."
-msgstr "Vi kan ikke utføre din transaksjon. Vennligst kontakt din bank for assistanse og <a href=\"%s\" target=\"_blank\">oppdater dine betalingsdetaljer</a>."
-
-#: views/notice.php:58
-msgid "Please visit the <a href=\"%s\" target=\"_blank\">Akismet account page</a> to reactivate your subscription."
-msgstr "Vennligst besøk <a href=\"%s\" target=\"_blank\">kontosiden i Akismet</a> for a reaktivere dit abonnement."
 
 #: views/start.php:7 views/start.php:21 views/start.php:34 views/start.php:43
 msgid "Connected via Jetpack"
@@ -522,10 +422,6 @@ msgstr "Merk:"
 msgid "Accuracy"
 msgstr "Treffsikkerhet"
 
-#: views/notice.php:14
-msgid "<strong>Almost done</strong> - activate your account and say goodbye to comment spam"
-msgstr "<strong>Nesten ferdig</strong> – aktiver din konto og si farvel til useriøse kommentarer"
-
 #: class.akismet-admin.php:206 views/config.php:170
 msgid "Subscription Type"
 msgstr "Type abonnement"
@@ -557,10 +453,6 @@ msgstr "Til alle tider"
 msgid "Akismet %s requires WordPress %s or higher."
 msgstr "Akismet %s krever WordPress %s eller nyere."
 
-#: class.akismet-admin.php:887
-msgid "Since you joined us, Akismet has saved you %d minutes!"
-msgstr "Siden du ble med har Aksimet spart deg for %d minutter!"
-
 #: class.akismet-admin.php:300
 msgid "<a href=\"%s\">Akismet</a> blocks spam from getting to your blog. "
 msgstr "<a href=\"%s\">Akismet</a> hindrer useriøst innhold fra å komme inn i ditt nettsted. "
@@ -580,10 +472,6 @@ msgstr "Akismet brukerstøtte"
 #: class.akismet-admin.php:184
 msgid "On this page, you are able to enter/remove an API key, view account information and view spam stats."
 msgstr "På denne siden kan du legge inn eller fjerne en API-nøkkel, vise kontoinformasjon og vise statistikk over useriøst innhold."
-
-#: class.akismet-admin.php:883
-msgid "Since you joined us, Akismet has saved you %s days!"
-msgstr "Siden du ble med har Akismet spart deg for %s dager!"
 
 #: class.akismet-admin.php:151
 msgid "Enter an API Key"
@@ -613,10 +501,6 @@ msgstr "Trykk på knappen Bruk denne nøkkelen."
 msgid "New to Akismet"
 msgstr "Fersk med Akismet"
 
-#: class.akismet-admin.php:133
-msgid "On this page, you are able to setup the Akismet plugin."
-msgstr "På denne siden kan du konfigurere Akismet-utvidelsen."
-
 #: class.akismet-admin.php:171
 msgid "On this page, you are able to view stats on spam filtered on your site."
 msgstr "På denne siden kan du se statistikk for useriøst innhold filtrert på ditt nettsted."
@@ -625,14 +509,6 @@ msgstr "På denne siden kan du se statistikk for useriøst innhold filtrert på 
 #: class.akismet-admin.php:153
 msgid "Akismet Setup"
 msgstr "Konfigurering av Akismet"
-
-#: class.akismet-admin.php:885
-msgid "Since you joined us, Akismet has saved you %d hours!"
-msgstr "Siden du ble med har Akismet spart deg for %d timer!"
-
-#: class.akismet-admin.php:144
-msgid "Signup for an account on %s to get an API Key."
-msgstr "Registrer deg for en konto på %s og få en API-nøkkel."
 
 #: views/config.php:208
 msgid "Change"
@@ -677,11 +553,6 @@ msgstr "Opprenskning av useriøst innhold tar tid."
 #: class.akismet-admin.php:143
 msgid "You need to enter an API key to activate the Akismet service on your site."
 msgstr "Du trenger an API-nøkkel for å aktivere Akismet-tjenesten på ditt nettsted."
-
-#: class.akismet-admin.php:132 class.akismet-admin.php:170
-#: class.akismet-admin.php:183
-msgid "Akismet filters out your comment and trackback spam for you, so you can focus on more important things."
-msgstr "Akismet filtrerer dine kommentarer og tilbakesporinger for deg slik at du kan konsentrere deg om viktigere ting."
 
 #: class.akismet-admin.php:312
 msgid "There&#8217;s nothing in your <a href='%s'>spam queue</a> at the moment."

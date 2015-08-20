@@ -2,15 +2,19 @@
 /**
  * Grunnkonfigurasjonen til WordPress.
  *
- * Denne filen inneholder følgende konfigurasjoner: MySQL-innstillinger, tabellprefiks,
- * hemmelige nøkler, WordPress-språk og ABSPATH. Du kan finne mer informasjon
- * ved å besøke {@link http://codex.wordpress.org/Editing_wp-config.php Editing
- * wp-config.php} Codex-siden. Du kan få MySQL-innstillingene fra din nettjener.
- * 
- * Denne filen brukes av koden som lager wp-config.php i løpet av
- * installasjonen. Du trenger ikke å bruke nettstedet til å gjøre det, du trenger bare
+ * Denne filen brukes av koden som lager wp-config.php i løpet av installasjonen.
+ * Du trenger ikke å bruke nettstedet til å gjøre det, du trenger bare
  * å kopiere denne filen til "wp-config.php" og fylle inn verdiene.
  *
+ * Filen inneholder følgende konfigurasjoner:
+ *
+ * * MySQL-innstillinger
+ * * Hemmelige nøkler
+ * * Tabellprefiks for database
+ * * ABSPATH
+ * 
+ * @link https://codex.wordpress.org/Editing_wp-config.php
+ * 
  * @package WordPress
  */
 
@@ -65,8 +69,13 @@ $table_prefix  = 'wp_';
  * For utviklere: WordPress-feilsøkingstilstand.
  *
  * Sett denne til "true" for å aktivere visning av meldinger under utvikling.
- * Det er sterkt anbefalt at innstikks- og tema-utviklere bruker WP_DEBUG
+ * Det er sterkt anbefalt at utvidelses- og tema-utviklere bruker WP_DEBUG
  * i deres utviklermiljøer.
+ * 
+ * For informasjon om andre konstanter som kan benyttes under utvikling,
+ * besøk vår Codex.
+ * 
+ * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
 define('WP_DEBUG', false);
 
