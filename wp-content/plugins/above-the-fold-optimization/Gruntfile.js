@@ -18,10 +18,22 @@ module.exports = function(grunt) {
 			},
 			build: {
 				files: {
-                    'public/js/abovethefold.min.js' : [
-                        'public/js/abovethefold.js'
-                    ]
 
+					// Above The Fold Javascript Controller
+					'public/js/abovethefold.min.js' : [
+						'public/js/src/abovethefold.js',
+						'public/js/src/abovethefold.loadcss.js'
+					],
+
+					// Enhanced loadCSS
+					'public/js/abovethefold-loadcss-enhanced.min.js' : [
+						'public/js/src/abovethefold.loadcss-modified.js'
+					],
+
+					// Original loadCSS
+					'public/js/abovethefold-loadcss.min.js' : [
+						'bower_components/loadcss/loadCSS.js'
+					]
 				}
 			}
 		}

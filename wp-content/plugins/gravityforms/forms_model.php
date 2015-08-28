@@ -1323,7 +1323,7 @@ class GFFormsModel {
 			$user_id = $current_user && $current_user->ID ? $current_user->ID : 'NULL';
 
 			$lead_table = RGFormsModel::get_lead_table_name();
-			$user_agent = self::truncate( $_SERVER['HTTP_USER_AGENT'], 250 );
+			$user_agent = self::truncate( rgar( $_SERVER, 'HTTP_USER_AGENT' ), 250 );
 			$currency   = GFCommon::get_currency();
 			$source_url = self::truncate( self::get_current_page_url(), 200 );
 
@@ -3316,7 +3316,7 @@ class GFFormsModel {
 			$lead_field_keys = array_keys( $lead );
 			natsort( $lead_field_keys );
 			foreach ( $lead_field_keys as $input_id ) {
-				if ( is_numeric( $input_id ) && absint( $input_id ) == absint( $field->id ) ) {
+				if ( is_numeric( $input_id ) && absint( $input_id ) == absint( $field_id ) ) {
 					$val = $lead[ $input_id ];
 					if ( strlen( $val ) >= ( $max_length - 10 ) ) {
 						if ( empty( $form ) ) {
