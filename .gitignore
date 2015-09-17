@@ -10,3 +10,4 @@ wp-content/blogs.dir/
 wp-content/debug.log
 wordpress.thor
 wp-config.php
+wp-content/cache/

@@ -3,3 +3,7 @@ Theme Name: MBlank
 Author: Mediebruket
 Author URI: https://mediebruket.no/
 */
+
+.screen-reader-text {
+  display: none;
+}
