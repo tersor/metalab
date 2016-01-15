@@ -11,3 +11,4 @@ wp-content/debug.log
 wordpress.thor
 wp-config.php
 wp-content/cache/
+wp-content/object-cache.php
