@@ -5,7 +5,7 @@
  * @package    Members
  * @subpackage Admin
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -110,6 +110,9 @@ function members_delete_role( $role ) {
 
 	// Remove the role.
 	remove_role( $role );
+
+	// Remove the role from the role factory.
+	members_role_factory()->remove_role( $role );
 }
 
 /**

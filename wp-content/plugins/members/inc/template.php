@@ -5,7 +5,7 @@
  * @package    Members
  * @subpackage Includes
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -135,7 +135,7 @@ function members_list_users( $args = array() ) {
 
 		foreach ( $users as $user ) {
 
-			$url = get_author_posts_url( $author->ID, $author->user_nicename );
+			$url = get_author_posts_url( $user->ID, $user->user_nicename );
 
 			$class = sanitize_html_class( "user-{$user->ID}" );
 

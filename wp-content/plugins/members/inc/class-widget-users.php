@@ -5,7 +5,7 @@
  * @package    Members
  * @subpackage Includes
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -17,6 +17,15 @@
  * @access public
  */
 class Members_Widget_Users extends WP_Widget {
+
+	/**
+	 * Default arguments for the widget settings.
+	 *
+	 * @since  1.0.3
+	 * @access public
+	 * @var    array
+	 */
+	public $defaults = array();
 
 	/**
 	 * Set up the widget's unique name, ID, class, description, and other options.
@@ -42,6 +51,21 @@ class Members_Widget_Users extends WP_Widget {
 
 		// Create the widget.
 		parent::__construct( 'members-widget-users', esc_html__( 'Members: Users', 'members' ), $widget_options, $control_options );
+
+		// Set up the defaults.
+		$this->defaults = array(
+			'title'      => esc_attr__( 'Users', 'members' ),
+			'order'      => 'ASC',
+			'orderby'    => 'login',
+			'role'       => '',
+			'meta_key'   => '',
+			'meta_value' => '',
+			'include'    => '',
+			'exclude'    => '',
+			'search'     => '',
+			'offset'     => '',
+			'number'     => ''
+		);
 	}
 
 	/**
@@ -54,6 +78,8 @@ class Members_Widget_Users extends WP_Widget {
 	 * @return void
 	 */
 	function widget( $sidebar, $instance ) {
+
+		$instance = wp_parse_args( $instance, $this->defaults );
 
 		// Set up the arguments for get_users().
 		$args = array(
@@ -150,23 +176,8 @@ class Members_Widget_Users extends WP_Widget {
 	 */
 	function form( $instance ) {
 
-		// Set up the default form values.
-		$defaults = array(
-			'title'      => esc_attr__( 'Users', 'members' ),
-			'order'      => 'ASC',
-			'orderby'    => 'login',
-			'role'       => '',
-			'meta_key'   => '',
-			'meta_value' => '',
-			'include'    => '',
-			'exclude'    => '',
-			'search'     => '',
-			'offset'     => '',
-			'number'     => ''
-		);
-
 		// Merge the user-selected arguments with the defaults.
-		$instance = wp_parse_args( (array) $instance, $defaults );
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
 		$order = array(
 			'ASC'  => esc_attr__( 'Ascending',  'members' ),

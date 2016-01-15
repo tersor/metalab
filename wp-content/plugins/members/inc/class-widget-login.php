@@ -5,7 +5,7 @@
  * @package    Members
  * @subpackage Includes
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -17,6 +17,15 @@
  * @access public
  */
 class Members_Widget_Login extends WP_Widget {
+
+	/**
+	 * Default arguments for the widget settings.
+	 *
+	 * @since  1.0.3
+	 * @access public
+	 * @var    array
+	 */
+	public $defaults = array();
 
 	/**
 	 * Set up the widget's unique name, ID, class, description, and other options.
@@ -42,6 +51,26 @@ class Members_Widget_Login extends WP_Widget {
 
 		// Create the widget.
 		parent::__construct( 'members-widget-login', esc_attr__( 'Members: Login Form', 'members' ), $widget_options, $control_options );
+
+		// Set up the defaults.
+		$this->defaults = array(
+			'title'           => esc_attr__( 'Log In',     'members' ),
+			'label_username'  => esc_attr__( 'Username',   'members' ),
+			'label_password'  => esc_attr__( 'Password',   'members' ),
+			'label_log_in'    => esc_attr__( 'Log In',     'members' ),
+			'label_remember'  => esc_attr__('Remember Me', 'members' ),
+			'form_id'         => 'loginform',
+			'id_username'     => 'user_login',
+			'id_password'     => 'user_pass',
+			'id_remember'     => 'rememberme',
+			'id_submit'       => 'wp-submit',
+			'remember'        => true,
+			'value_remember'  => false,
+			'value_username'  => '',
+			'show_avatar'     => true,
+			'logged_out_text' => esc_html__( 'Please log into the site.',   'members' ),
+			'logged_in_text'  => esc_html__( 'You are currently logged in.', 'members' )
+		);
 	}
 
 	/**
@@ -55,6 +84,8 @@ class Members_Widget_Login extends WP_Widget {
 	 */
 	function widget( $sidebar, $instance ) {
 		global $user_identity, $user_ID;
+
+		$instance = wp_parse_args( $instance, $this->defaults );
 
 		// Set up the arguments for wp_login_form().
 		$args = array(
@@ -150,8 +181,8 @@ class Members_Widget_Login extends WP_Widget {
 			$instance['logged_in_text']  = $new_instance['logged_in_text'];
 			$instance['logged_out_text'] = $new_instance['logged_out_text'];
 		} else {
-			$instance['logged_in_text']  = wp_filter_post_kses( $new_instance['logged_in_text']  );
-			$instance['logged_out_text'] = wp_filter_post_kses( $new_instance['logged_out_text'] );
+			$instance['logged_in_text']  = wp_kses_post( stripslashes( $new_instance['logged_in_text']  ) );
+			$instance['logged_out_text'] = wp_kses_post( stripslashes( $new_instance['logged_out_text'] ) );
 		}
 
 		return $instance;
@@ -167,31 +198,8 @@ class Members_Widget_Login extends WP_Widget {
 	 */
 	function form( $instance ) {
 
-		// Set up the default form values. */
-		$defaults = array(
-			'title'           => esc_attr__( 'Log In',     'members' ),
-			'label_username'  => esc_attr__( 'Username',   'members' ),
-			'label_password'  => esc_attr__( 'Password',   'members' ),
-			'label_log_in'    => esc_attr__( 'Log In',     'members' ),
-			'label_remember'  => esc_attr__('Remember Me', 'members' ),
-			'form_id'         => 'loginform',
-			'id_username'     => 'user_login',
-			'id_password'     => 'user_pass',
-			'id_remember'     => 'rememberme',
-			'id_submit'       => 'wp-submit',
-			'remember'        => true,
-			'value_remember'  => false,
-			'value_username'  => '',
-			'show_avatar'     => true,
-			'logged_out_text' => esc_html__( 'Please log into the site.',   'members' ),
-			'logged_in_text'  => esc_html__( 'You are currently logged in.', 'members' )
-		);
-
 		// Merge the user-selected arguments with the defaults.
-		$instance = wp_parse_args( (array) $instance, $defaults );
-
-		$logged_in_text  = format_to_edit( $instance['logged_in_text'] );
-		$logged_out_text = format_to_edit( $instance['logged_out_text'] ); ?>
+		$instance = wp_parse_args( (array) $instance, $this->defaults ); ?>
 
 		<div style="float: left; width: 31%; margin-right: 3.5%;">
 
@@ -264,12 +272,12 @@ class Members_Widget_Login extends WP_Widget {
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'logged_out_text' ); ?>"><?php _e( 'Logged out text:', 'members' ); ?></label>
-			<textarea class="widefat" rows="4" cols="20" id="<?php echo $this->get_field_id( 'logged_out_text' ); ?>" name="<?php echo $this->get_field_name( 'logged_out_text' ); ?>" style="width:100%;"><?php echo esc_textarea( $logged_out_text ); ?></textarea>
+			<textarea class="widefat" rows="4" cols="20" id="<?php echo $this->get_field_id( 'logged_out_text' ); ?>" name="<?php echo $this->get_field_name( 'logged_out_text' ); ?>" style="width:100%;"><?php echo esc_textarea( $instance['logged_out_text'] ); ?></textarea>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'logged_in_text' ); ?>"><?php _e( 'Logged in text:', 'members' ); ?></label>
-			<textarea class="widefat" rows="4" cols="20" id="<?php echo $this->get_field_id( 'logged_in_text' ); ?>" name="<?php echo $this->get_field_name( 'logged_in_text' ); ?>" style="width:100%;"><?php echo esc_textarea( $logged_in_text ); ?></textarea>
+			<textarea class="widefat" rows="4" cols="20" id="<?php echo $this->get_field_id( 'logged_in_text' ); ?>" name="<?php echo $this->get_field_name( 'logged_in_text' ); ?>" style="width:100%;"><?php echo esc_textarea( $instance['logged_in_text'] ); ?></textarea>
 		</p>
 
 		</div>

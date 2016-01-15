@@ -5,7 +5,7 @@
  * @package    Members
  * @subpackage Admin
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -136,7 +136,7 @@ final class Members_Admin_Role_New {
 		}
 
 		// Check if the current user can create roles and the form has been submitted.
-		if ( current_user_can( 'create_roles' ) && ( isset( $_POST['role_name'] ) || isset( $_POST['role'] ) || isset( $_POST['grant-caps'] ) || isset( $_POST['deny-caps'] ) || isset( $_POST['grant-new-caps'] ) || isset( $_POST['deny-new-caps'] ) ) ) {
+		if ( current_user_can( 'create_roles' ) && isset( $_POST['members_new_role_nonce'] ) ) {
 
 			// Verify the nonce.
 			check_admin_referer( 'new_role', 'members_new_role_nonce' );
@@ -146,13 +146,23 @@ final class Members_Admin_Role_New {
 			$new_caps           = array();
 			$is_duplicate       = false;
 
+			// Get all the capabilities.
+			$_m_caps = members_get_capabilities();
+
+			// Add all caps from the cap groups.
+			foreach ( members_get_cap_groups() as $group )
+				$_m_caps = array_merge( $_m_caps, $group->caps );
+
+			// Make sure we have a unique array of caps.
+			$_m_caps = array_unique( $_m_caps );
+
 			// Check if any capabilities were selected.
 			if ( isset( $_POST['grant-caps'] ) || isset( $_POST['deny-caps'] ) ) {
 
 				$grant_caps = ! empty( $_POST['grant-caps'] ) ? array_unique( $_POST['grant-caps'] ) : array();
 				$deny_caps  = ! empty( $_POST['deny-caps'] )  ? array_unique( $_POST['deny-caps']  ) : array();
 
-				foreach ( members_get_capabilities() as $cap ) {
+				foreach ( $_m_caps as $cap ) {
 
 					if ( in_array( $cap, $grant_caps ) )
 						$new_caps[ $cap ] = true;
@@ -164,8 +174,6 @@ final class Members_Admin_Role_New {
 
 			$grant_new_caps = ! empty( $_POST['grant-new-caps'] ) ? array_unique( $_POST['grant-new-caps'] ) : array();
 			$deny_new_caps  = ! empty( $_POST['deny-new-caps'] )  ? array_unique( $_POST['deny-new-caps']  ) : array();
-
-			$_m_caps = members_get_capabilities();
 
 			foreach ( $grant_new_caps as $grant_new_cap ) {
 
@@ -185,7 +193,7 @@ final class Members_Admin_Role_New {
 
 			// Sanitize the new role name/label. We just want to strip any tags here.
 			if ( ! empty( $_POST['role_name'] ) )
-				$this->role_name = strip_tags( $_POST['role_name'] );
+				$this->role_name = wp_strip_all_tags( $_POST['role_name'] );
 
 			// Sanitize the new role, removing any unwanted characters.
 			if ( ! empty( $_POST['role'] ) )
@@ -203,9 +211,12 @@ final class Members_Admin_Role_New {
 
 				add_role( $this->role, $this->role_name, $new_caps );
 
+				// Action hook for when a role is added.
+				do_action( 'members_role_added', $this->role );
+
 				// If the current user can edit roles, redirect to edit role screen.
 				if ( current_user_can( 'edit_roles' ) ) {
-					wp_redirect( add_query_arg( 'message', 'role_added', members_get_edit_role_url( $this->role ) ) );
+					wp_redirect( esc_url_raw( add_query_arg( 'message', 'role_added', members_get_edit_role_url( $this->role ) ) ) );
  					exit;
 				}
 

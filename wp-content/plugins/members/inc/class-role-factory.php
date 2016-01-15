@@ -6,7 +6,7 @@
  * @package    Members
  * @subpackage Includes
  * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2015, Justin Tadlock
+ * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
  * @link       http://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
@@ -103,6 +103,20 @@ final class Members_Role_Factory {
 	public function get_role( $role ) {
 
 		return isset( $this->roles[ $role ] ) ? $this->roles[ $role ] : false;
+	}
+
+	/**
+	 * Removes a role object (doesn't remove from DB).
+	 *
+	 * @since  1.1.0
+	 * @access public
+	 * @param  string  $role
+	 * @return void
+	 */
+	public function remove_role( $role ) {
+
+		if ( isset( $this->roles[ $role ] ) )
+			unset( $this->roles[ $role ] );
 	}
 
 	/**
