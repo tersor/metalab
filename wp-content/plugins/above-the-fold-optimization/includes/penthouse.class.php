@@ -205,7 +205,7 @@ class Abovethefold_Generator_Penthouse {
 			$data = trim(preg_replace('|EXTRACT-CSS-([a-z0-9]{32})|Ui','',$data));
 			$data = @json_decode($data,true);
 			if (!is_array($data) || !isset($data['css']) || !isset($data['html'])) {
-				$this->CTRL->set_notice('Extracted CSS for URL '.$url[0].' returned an invalid response. Please contact the administrator of the plugin.','error');
+				$this->CTRL->set_notice('Extracted CSS for URL '.$url[0].' returned an invalid response. ','error');
 				return;
 			}
 

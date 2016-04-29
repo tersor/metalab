@@ -32,6 +32,10 @@ class Abovethefold_LocalizeJSModule_GoogleAnalyticsJs extends Abovethefold_Local
 
 		parent::__construct( $CTRL );
 
+		$this->options = array_merge(array(
+			'incmethod' => '','id' => ''
+		),$this->options);
+
 		if ($this->CTRL->options['localizejs'][$this->classname]['enabled']) {
 			switch ($this->CTRL->options['localizejs'][$this->classname]['incmethod']) {
 				case "replace":

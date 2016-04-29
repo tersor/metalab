@@ -33,6 +33,10 @@ class Abovethefold_LocalizeJSModule_GoogleWebfont extends Abovethefold_LocalizeJ
 
 		parent::__construct( $CTRL );
 
+		$this->options = array_merge(array(
+			'incmethod' => '','version' => ''
+		),$this->options);
+
 		if (isset($this->CTRL->options['localizejs'][$this->classname]['version'])) {
 			$this->version = $this->CTRL->options['localizejs'][$this->classname]['version'];
 		}

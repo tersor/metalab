@@ -35,6 +35,10 @@ class Abovethefold_LocalizeJSModule_Hotjar extends Abovethefold_LocalizeJSModule
 
 		parent::__construct( $CTRL );
 
+		$this->options = array_merge(array(
+			'incmethod' => '','id' => '','sv' => ''
+		),$this->options);
+
 		if (isset($this->CTRL->options['localizejs'][$this->classname]['sv'])) {
 			$this->sv = $this->CTRL->options['localizejs'][$this->classname]['sv'];
 		}
@@ -50,6 +54,7 @@ class Abovethefold_LocalizeJSModule_Hotjar extends Abovethefold_LocalizeJSModule
 		if ($this->CTRL->options['localizejs'][$this->classname]['enabled']) {
 			switch ($this->CTRL->options['localizejs'][$this->classname]['incmethod']) {
 				default:
+					$this->CTRL->loader->add_action('wp_head', $this, 'head_script', -1);
 					$this->CTRL->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_script', -1);
 				break;
 			}
@@ -69,6 +74,23 @@ class Abovethefold_LocalizeJSModule_Hotjar extends Abovethefold_LocalizeJSModule
 		list($script_url, $script_time) = $this->get_script( true );
 
 		wp_enqueue_script( 'hotjar-js', $script_url , array(), $this->version );
+
+	}
+
+	/**
+	 * Head script
+	 */
+	public function head_script( ) {
+
+		if (!$this->source_variables['%%SV%%'] || !$this->source_variables['%%ID%%']) {
+			return false;
+		}
+
+?>
+<script>
+window._hjSettings={hjid:<?php print $this->source_variables['%%ID%%']; ?>,hjsv:<?php print $this->source_variables['%%SV%%']; ?>};
+</script>
+<?php
 
 	}
 

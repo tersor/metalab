@@ -5,79 +5,42 @@
 
 	<h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-	<?php settings_errors(); ?>
+	<h2 class="title"><?php _e( 'Overview', 'redis-cache' ); ?></h2>
 
 	<table class="form-table">
 
-		<tr valign="top">
-			<th scope="row"><?php _e( 'Redis Status', 'redis-cache' ); ?></th>
-			<td><code><?php echo $this->get_redis_status(); ?></code></td>
+		<tr>
+			<th><?php _e( 'Status:', 'redis-cache' ); ?></th>
+			<td><code><?php echo $this->get_status(); ?></code></td>
 		</tr>
 
-		<tr valign="top">
-			<th scope="row"><?php _e( 'Configuration', 'redis-cache' ); ?></th>
-			<td>
-				<table>
-					<?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
-						<tr>
-							<td><?php _e( 'Client:', 'redis-cache' ); ?></td>
-							<td><code><?php echo $this->get_redis_client_name(); ?></code></td>
-						</tr>
-					<?php endif; ?>
-					<tr>
-						<td><?php _e( 'Protocol:', 'redis-cache' ); ?></td>
-						<td><code><?php echo strtoupper( esc_html( $this->get_redis_scheme() ) ); ?></code></td>
-					</tr>
-					<?php if ( strcasecmp( 'tcp', $this->get_redis_scheme() ) === 0 ) : ?>
-						<tr>
-							<td><?php _e( 'Host:', 'redis-cache' ); ?></td>
-							<td><code><?php echo esc_html( $this->get_redis_host() ); ?></code></td>
-						</tr>
+		<?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
+			<tr>
+				<th><?php _e( 'Client:', 'redis-cache' ); ?></th>
+				<td><code><?php echo esc_html( $this->get_redis_client_name() ); ?></code></td>
+			</tr>
+		<?php endif; ?>
 
-						<tr>
-							<td><?php _e( 'Port:', 'redis-cache' ); ?></td>
-							<td><code><?php echo esc_html( $this->get_redis_port() ); ?></code></td>
-						</tr>
-					<?php endif; ?>
-					<?php if ( strcasecmp( 'unix', $this->get_redis_scheme() ) === 0 ) : ?>
-						<tr>
-							<td><?php _e( 'Path:', 'redis-cache' ); ?></td>
-							<td><code><?php echo esc_html( $this->get_redis_path() ); ?></code></td>
-						</tr>
-					<?php endif; ?>
-					<tr>
-						<td><?php _e( 'Database:', 'redis-cache' ); ?></td>
-						<td> <code><?php echo esc_html( $this->get_redis_database() ); ?></code></td>
-					</tr>
-					<?php if ( ! is_null( $this->get_redis_password() ) ) : ?>
-						<tr>
-							<td><?php _e( 'Password:', 'redis-cache' ); ?></td>
-							<td><code><?php echo str_repeat( '*', strlen( $this->get_redis_password() ) ); ?></code></td>
-						</tr>
-					<?php endif; ?>
-					<?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
-						<tr>
-							<td><?php _e( 'Key Prefix:', 'redis-cache' ); ?></td>
-							<td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
-						</tr>
-					<?php endif; ?>
-					<?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
-						<tr>
-							<td><?php _e( 'Max. TTL:', 'redis-cache' ); ?></td>
-							<td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
-						</tr>
-					<?php endif; ?>
-				</table>
-			</td>
-		</tr>
+		<?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
+			<tr>
+				<th><?php _e( 'Key Prefix:', 'redis-cache' ); ?></th>
+				<td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
+			</tr>
+		<?php endif; ?>
+
+		<?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
+			<tr>
+				<th><?php _e( 'Max. TTL:', 'redis-cache' ); ?></th>
+				<td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
+			</tr>
+		<?php endif; ?>
 
 	</table>
 
 	<p class="submit">
 
-		<?php if ( strcasecmp( 'connected', $this->get_redis_status() ) === 0 ) : ?>
-			<a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a>
-			&nbsp;
+		<?php if ( $this->get_redis_status() ) : ?>
+			<a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
 		<?php endif; ?>
 
 		<?php if ( ! $this->object_cache_dropin_exists() ) : ?>
@@ -87,5 +50,9 @@
 		<?php endif; ?>
 
 	</p>
+
+	<h2 class="title"><?php _e( 'Servers', 'redis-cache' ); ?></h2>
+
+	<?php $this->show_servers_list(); ?>
 
 </div>

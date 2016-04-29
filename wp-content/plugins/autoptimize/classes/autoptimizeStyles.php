@@ -188,9 +188,8 @@ class autoptimizeStyles extends autoptimizeBase {
 					if (has_filter('autoptimize_css_individual_style') && !empty($tmpstyle)) {
 						$css=$tmpstyle;
 						$this->alreadyminified=true;
-					} else if ((strpos($cssPath,"min.css")!==false) && (strpos($css,"@import")===false) && ($this->inject_min_late===true)) {
-						// only if filter is true?
-						$css="%%INJECTLATER%%".base64_encode($cssPath)."%%INJECTLATER%%";
+					} else if ($this->can_inject_late($cssPath,$css)) {
+						$css="%%INJECTLATER%%".base64_encode($cssPath)."|".md5($css)."%%INJECTLATER%%";
 					}
 				} else {
 					// Couldn't read CSS. Maybe getpath isn't working?
@@ -248,8 +247,8 @@ class autoptimizeStyles extends autoptimizeBase {
 							if ( has_filter('autoptimize_css_individual_style') && !empty($tmpstyle)) {
 								$code=$tmpstyle;
 								$this->alreadyminified=true;
-							} else if ((strpos($path,"min.css")!==false) && (strpos($css,"@import")===false) && ($this->inject_min_late===true)) {
-								$code="%%INJECTLATER%%".base64_encode($path)."%%INJECTLATER%%";
+							} else if ($this->can_inject_late($path,$code)) {
+								$code="%%INJECTLATER%%".base64_encode($path)."|".md5($code)."%%INJECTLATER%%";
 							}
 							
 							if(!empty($code)) {
@@ -392,11 +391,9 @@ class autoptimizeStyles extends autoptimizeBase {
 				}
 			
 			// CDN the fonts!
-			if ((!empty($this->cdn_url))&&apply_filters("autoptimize_filter_css_fonts_cdn",false)) {
+			if ( (!empty($this->cdn_url)) && (apply_filters('autoptimize_filter_css_fonts_cdn',false)) && (version_compare(PHP_VERSION, '5.3.0') >= 0) ) {
 				$fontreplace = array();
-				$fonturl_regex = <<<LOD
-~(?(DEFINE)(?<quoted_content>(["']) (?>[^"'\\]++ | \\{2} | \\. | (?!\g{-1})["'] )*+ \g{-1})(?<comment> /\* .*? \*/ ) (?<url_skip>(?: data: ) [^"'\s)}]*+ ) (?<other_content>(?> [^u}/"']++ | \g<quoted_content> | \g<comment> | \Bu | u(?!rl\s*+\() | /(?!\*) | \g<url_start> \g<url_skip> ["']?+ )++ ) (?<anchor> \G(?<!^) ["']?+ | @font-face \s*+ { ) (?<url_start> url\( \s*+ ["']?+ ) ) \g<comment> (*SKIP)(*FAIL) | \g<anchor> \g<other_content>?+ \g<url_start> \K ((?:(?:https?:)?(?://[[:alnum:]\-\.]+)(?::[0-9]+)?)?\/[^"'\s)}]*+) ~xs
-LOD;
+		                include_once(AUTOPTIMIZE_PLUGIN_DIR.'classlesses/autoptimizeFontRegex.php');
 
 				preg_match_all($fonturl_regex,$code,$matches);
 				if (is_array($matches)) {
@@ -514,7 +511,7 @@ LOD;
 			}
 		} else {
 			if ($this->defer == true) {
-				$deferredCssBlock = "<script>function lCss(url,media) {var d=document;var l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href=url;l.media=media;aoin=d.getElementsByTagName('noscript')[0];aoin.parentNode.insertBefore(l,aoin.nextSibling);}function deferredCSS() {";
+				$deferredCssBlock = "<script data-cfasync='false'>function lCss(url,media) {var d=document;var l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href=url;l.media=media;aoin=d.getElementsByTagName('noscript')[0];aoin.parentNode.insertBefore(l,aoin.nextSibling);}function deferredCSS() {";
 				$noScriptCssBlock = "<noscript>";
 				$defer_inline_code=$this->defer_inline;
 				$defer_inline_code=apply_filters( 'autoptimize_filter_css_defer_inline', $defer_inline_code );
@@ -539,7 +536,7 @@ LOD;
 						unset($tmp_code);
 					     }
 					}
-					$code_out='<style type="text/css" media="all">'.$defer_inline_code.'</style>';
+					$code_out='<style type="text/css" id="aoatfcss" media="all">'.$defer_inline_code.'</style>';
 					$this->inject_in_html($code_out,$replaceTag);
 				}
 			}
@@ -634,6 +631,25 @@ LOD;
 			}
 			
 			//If we're here it's safe to move
+			return true;
+		}
+	}
+	
+	private function can_inject_late($cssPath,$css) {
+		if ((strpos($cssPath,"min.css")===false) || ($this->inject_min_late!==true)) {
+			// late-inject turned off or file not minified based on filename
+			return false;
+		} else if (strpos($css,"@import")!==false) {
+			// can't late-inject files with imports as those need to be aggregated 
+			return false;
+		} else if ( (strpos($css,"@font-face")!==false ) && ( apply_filters("autoptimize_filter_css_fonts_cdn",false)===true) && (!empty($this->cdn_url)) ) {
+			// don't late-inject CSS with font-src's if fonts are set to be CDN'ed
+			return false;
+		} else if ( (($this->datauris == true) || (!empty($this->cdn_url))) && preg_match("#background[^;}]*url\(#Ui",$css) ) {
+			// don't late-inject CSS with images if CDN is set OR is image inlining is on
+			return false;
+		} else {
+			// phew, all is safe, we can late-inject
 			return true;
 		}
 	}

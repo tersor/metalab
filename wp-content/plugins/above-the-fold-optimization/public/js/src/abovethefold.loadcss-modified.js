@@ -55,12 +55,26 @@ window['abovethefold'].loadCSS = function( href, before, media, callback ) {
         }
     };
     ss.onloadcssdefined(function() {
-        window['abovethefold'].raf(function() {
-            ss.media = media || "all";
-            if (window['abovethefold'].debug) {
-                console.info('abovethefold.css() > loadCSS()[RAF] render', href);
-            }
-        });
+
+        function render() {
+            window['abovethefold'].raf(function() {
+                ss.media = media || "all";
+                if (window['abovethefold'].debug) {
+                    console.info('abovethefold.css() > loadCSS()[RAF] render', href);
+                }
+            });
+        }
+
+        if (typeof window['abovethefold'].cnf.delay !== 'undefined' && parseInt(window['abovethefold'].cnf.delay) > 0) {
+
+            /**
+             * Delayed rendering
+             */
+            setTimeout(render,window['abovethefold'].cnf.delay);
+        } else {
+            render();
+        }
+
     });
 };
 

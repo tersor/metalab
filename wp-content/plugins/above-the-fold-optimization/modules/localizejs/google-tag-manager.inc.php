@@ -32,9 +32,13 @@ class Abovethefold_LocalizeJSModule_GoogleTagManager extends Abovethefold_Locali
 
 		parent::__construct( $CTRL );
 
+		$this->options = array_merge(array(
+			'incmethod' => '','id' => ''
+		),$this->options);
+
 		if (isset($this->CTRL->options['localizejs'][$this->classname]['id'])) {
 			$this->id = $this->CTRL->options['localizejs'][$this->classname]['id'];
-		}
+		} else { $this->id = ''; }
 
 		$this->source_variables = array(
 			'%%ID%%' => $this->id

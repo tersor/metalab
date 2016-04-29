@@ -34,6 +34,10 @@ class Abovethefold_LocalizeJSModule_FacebookFbds extends Abovethefold_LocalizeJS
 
 		parent::__construct( $CTRL );
 
+		$this->options = array_merge(array(
+			'incmethod' => '', 'lang' => ''
+		),$this->options);
+
 		if (isset($this->CTRL->options['localizejs'][$this->classname]['lang'])) {
 			$this->lang = $this->CTRL->options['localizejs'][$this->classname]['lang'];
 		}

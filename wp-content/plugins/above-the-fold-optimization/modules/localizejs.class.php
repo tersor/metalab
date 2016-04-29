@@ -70,6 +70,13 @@ abstract class Abovethefold_LocalizeJSModule {
 			$CTRL->options['localizejs'] = array();
 		}
 
+		if (!isset($CTRL->options['localizejs'][$this->classname])) {
+			$CTRL->options['localizejs'][$this->classname] = array();
+		}
+		if (!isset($CTRL->options['localizejs'][$this->classname]['enabled'])) {
+			$CTRL->options['localizejs'][$this->classname]['enabled'] = false;
+		}
+
 		$this->CTRL =& $CTRL;
 		$this->options = $CTRL->options['localizejs'][$this->classname];
 

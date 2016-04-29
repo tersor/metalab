@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class autoptimizeScripts extends autoptimizeBase {
 	private $scripts = array();
-	private $dontmove = array('document.write','html5.js','show_ads.js','google_ad','blogcatalog.com/w','tweetmeme.com/i','mybloglog.com/','histats.com/js','ads.smowtion.com/ad.js','statcounter.com/counter/counter.js','widgets.amung.us','ws.amazon.com/widgets','media.fastclick.net','/ads/','comment-form-quicktags/quicktags.php','edToolbar','intensedebate.com','scripts.chitika.net/','_gaq.push','jotform.com/','admin-bar.min.js','GoogleAnalyticsObject','plupload.full.min.js','syntaxhighlighter','adsbygoogle','gist.github.com','_stq','nonce','post_id');
+	private $dontmove = array('document.write','html5.js','show_ads.js','google_ad','blogcatalog.com/w','tweetmeme.com/i','mybloglog.com/','histats.com/js','ads.smowtion.com/ad.js','statcounter.com/counter/counter.js','widgets.amung.us','ws.amazon.com/widgets','media.fastclick.net','/ads/','comment-form-quicktags/quicktags.php','edToolbar','intensedebate.com','scripts.chitika.net/','_gaq.push','jotform.com/','admin-bar.min.js','GoogleAnalyticsObject','plupload.full.min.js','syntaxhighlighter','adsbygoogle','gist.github.com','_stq','nonce','post_id','data-noptimize');
 	private $domove = array('gaJsHost','load_cmc','jd.gallery.transitions.js','swfobject.embedSWF(','tiny_mce.js','tinyMCEPreInit.go');
 	private $domovelast = array('addthis.com','/afsonline/show_afs_search.js','disqus.js','networkedblogs.com/getnetworkwidget','infolinks.com/js/','jd.gallery.js.php','jd.gallery.transitions.js','swfobject.embedSWF(','linkwithin.com/widget.js','tiny_mce.js','tinyMCEPreInit.go');
 	private $trycatch = false;
@@ -74,6 +74,7 @@ class autoptimizeScripts extends autoptimizeBase {
 		} else {
 			$this->forcehead = false;
 		}
+	        $this->forcehead = apply_filters( 'autoptimize_filter_js_forcehead', $this->forcehead );
 
 		// get cdn url
 		$this->cdn_url = $options['cdn_url'];
@@ -90,8 +91,8 @@ class autoptimizeScripts extends autoptimizeBase {
 		//Get script files
 		if(preg_match_all('#<script.*</script>#Usmi',$this->content,$matches)) {
 			foreach($matches[0] as $tag) {
-				// only consider aggregation if no js type is specified or if type is text/javascript
-				if((strpos($tag,"type=")!==strpos($tag,"type=\"text/javascript\""))&&(strpos($tag,"type=")!==strpos($tag,"type='text/javascript'"))){
+				// only consider aggregation whitelisted in should_aggregate-function
+				if( !$this->should_aggregate($tag) ) {
 					$tag='';
 					continue;
 				}
@@ -211,7 +212,7 @@ class autoptimizeScripts extends autoptimizeBase {
 						$scriptsrc=$tmpscriptsrc;
 						$this->alreadyminified=true;
 					} else if ((strpos($script,"min.js")!==false) && ($this->inject_min_late===true)) {
-						$scriptsrc="%%INJECTLATER%%".base64_encode($script)."%%INJECTLATER%%";
+						$scriptsrc="%%INJECTLATER%%".base64_encode($script)."|".md5($scriptsrc)."%%INJECTLATER%%";
 					}
 					$this->jscode .= "\n".$scriptsrc;
 				}/*else{
@@ -274,7 +275,7 @@ class autoptimizeScripts extends autoptimizeBase {
 		
 		// Add the scripts taking forcehead/ deferred (default) into account
 		if($this->forcehead == true) {
-			$replaceTag=array("</title>","after");
+			$replaceTag=array("</head>","before");
 			$defer="";
 		} else {
 			$replaceTag=array("</body>","before");
@@ -345,7 +346,10 @@ class autoptimizeScripts extends autoptimizeBase {
 	
 	//Checks agains the blacklist
 	private function ismovable($tag) {
-		return false;
+		if ($this->include_inline !== true || apply_filters('autoptimize_filter_js_unmovable',true)) {
+			return false;
+		}
+		
 		foreach($this->domove as $match) {
 			if(strpos($tag,$match)!==false)	{
 				//Matched something
@@ -379,4 +383,29 @@ class autoptimizeScripts extends autoptimizeBase {
 		//Should be in 'first'
 		return false;
 	}
+   /**
+     * Determines wheter a <script> $tag should be aggregated or not.
+     *
+     * We consider these as "aggregation-safe" currently:
+     * - script tags without a `type` attribute
+     * - script tags with an explicit `type` of `text/javascript`, 'text/ecmascript', 
+	 *   'application/javascript' or 'application/ecmascript'
+     *
+     * Everything else should return false.
+     *
+     * @param string $tag
+     * @return bool
+	 * 
+	 * original function by https://github.com/zytzagoo/ on his AO fork, thanks Tomas!
+     */
+    public function should_aggregate($tag) {
+        preg_match('#<(script[^>]*)>#i',$tag,$scripttag);
+        if ( strpos($scripttag[1], 'type=')===false ) {
+            return true;
+        } else if ( preg_match('/type=["\']?(?:text|application)\/(?:javascript|ecmascript)["\']?/i', $scripttag[1]) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -11,6 +11,8 @@
  * @subpackage abovethefold/admin
  * @author     Optimalisatie.nl <info@optimalisatie.nl>
  */
+
+
 class Abovethefold_Admin {
 
 	/**
@@ -48,6 +50,7 @@ class Abovethefold_Admin {
 		$this->CTRL->loader->add_action('admin_post_abovethefold_update', $this,  'update_settings');
 		$this->CTRL->loader->add_action('admin_post_abovethefold_generate', $this,  'generate_critical_css');
 		$this->CTRL->loader->add_action('admin_post_abovethefold_extract', $this,  'download_fullcss');
+		$this->CTRL->loader->add_action('admin_post_abovethefold_localizejs', $this,  'update_localizejs');
 
 		$this->CTRL->loader->add_action( 'admin_notices', $this, 'show_notices' );
 
@@ -69,6 +72,44 @@ class Abovethefold_Admin {
 	}
 
 	/**
+	 * Enqueue scripts and styles
+	 *
+	 * @since	2.3.5
+	 * @param 	string	$hook
+	 */
+	public function enqueue_scripts($hook) {
+
+		if (!isset($_REQUEST['page']) || $_REQUEST['page'] !== 'abovethefold') {
+			return;
+		}
+
+		$options = get_option('abovethefold');
+
+		wp_enqueue_style( 'abtf_admincp', plugin_dir_url( __FILE__ ) . 'css/admincp.min.css' );
+		wp_enqueue_script( 'abtf_admincp', plugin_dir_url( __FILE__ ) . 'js/admincp.min.js', array( 'jquery' ) );
+
+		$tab = (isset($_REQUEST['tab'])) ? trim($_REQUEST['tab']) : 'settings';
+		if ($tab === 'settings') {
+
+			if (empty($options['csseditor']) || intval($options['csseditor']) === 1) {
+
+				/**
+				 * Codemirror CSS highlighting
+				 */
+				wp_enqueue_style( 'abtf_selectize', plugin_dir_url( __FILE__ ) . 'css/codemirror.min.css' );
+				wp_enqueue_script( 'abtf_selectize', plugin_dir_url( __FILE__ ) . 'js/codemirror.min.js', array( 'jquery','jquery-ui-resizable','abtf_admincp' ) );
+			}
+		} else if ($tab === 'extract') {
+
+			/**
+			 * Selectize
+			 */
+			wp_enqueue_style( 'abtf_selectize', plugin_dir_url( __FILE__ ) . '../bower_components/selectize/dist/css/selectize.default.css' );
+			wp_enqueue_script( 'abtf_selectize', plugin_dir_url( __FILE__ ) . '../bower_components/selectize/dist/js/standalone/selectize.min.js', array( 'jquery', 'abtf_admincp' ) );
+		}
+	}
+
+	/**
 	 * Admin menu option.
 	 *
 	 * @since    1.0
@@ -81,9 +122,11 @@ class Abovethefold_Admin {
 			/**
 			 * Add settings link to Performance tab of W3 Total Cache
 			 */
-			array_splice( $submenu['w3tc_dashboard'], 2, 0, array(
-				array(__('Above The Fold', 'abovethefold'), 'manage_options',  admin_url('admin.php?page=abovethefold'), __('Above The Fold Optimization', 'abovethefold'))
-			) );
+			if (is_array($submenu['w3tc_dashboard']) && !empty($submenu['w3tc_dashboard'])) {
+				array_splice( $submenu['w3tc_dashboard'], 2, 0, array(
+					array(__('Above The Fold', 'abovethefold'), 'manage_options',  admin_url('admin.php?page=abovethefold'), __('Above The Fold Optimization', 'abovethefold'))
+				) );
+			}
 
 			add_submenu_page(null, __('Above The Fold', 'abovethefold'), __('Above The Fold Optimization', 'abovethefold'), 'manage_options', 'abovethefold', array(
 				&$this,
@@ -95,7 +138,7 @@ class Abovethefold_Admin {
 		/**
 		 * Add settings link to Settings tab
 		 */
-		add_submenu_page( 'tools.php',  __('Above The Fold Optimization', 'abovethefold'), __('Above The Fold', 'abovethefold'), 'manage_options', 'abovethefold', array(
+		add_submenu_page( 'themes.php',  __('Above The Fold Optimization', 'abovethefold'), __('Above The Fold', 'abovethefold'), 'manage_options', 'abovethefold', array(
 			&$this,
 			'settings_page'
 		));
@@ -108,6 +151,11 @@ class Abovethefold_Admin {
 	 * @since    1.0
 	 */
 	public function admin_bar($admin_bar) {
+
+		$options = get_option('abovethefold');
+		if (!empty($options['adminbar']) && intval($options['adminbar']) !== 1) {
+			return;
+		}
 
 		$settings_url = add_query_arg( array( 'page' => 'abovethefold' ), '/wp-admin/admin.php' );
 		$nonced_url = wp_nonce_url( $settings_url, 'abovethefold' );
@@ -127,59 +175,68 @@ class Abovethefold_Admin {
 			$currenturl = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		}
 
-		$admin_bar->add_node( array(
+		/*$admin_bar->add_node( array(
 			'id'     => 'abovethefold-check',
 			'parent' => 'abovethefold',
 			'title' => __( 'Tests', 'abovethefold' ),
 			'meta'   => array( 'title' => __( 'Tests', 'abovethefold' ) )
-		) );
+		) );*/
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-pagespeed',
 			'title' => __( 'Google PageSpeed', 'abovethefold' ),
 			'href' => 'https://developers.google.com/speed/pagespeed/insights/?url='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'Google PageSpeed', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-google-mobile',
 			'title' => __( 'Google Mobile', 'abovethefold' ),
 			'href' => 'https://www.google.com/webmasters/tools/mobile-friendly/?url='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'Google Mobile', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
+			'id' => 'abovethefold-check-google-malware',
+			'title' => __( 'Google Malware & Security', 'abovethefold' ),
+			'href' => 'https://www.google.com/transparencyreport/safebrowsing/diagnostic/index.html#url='.urlencode(str_replace('www.','',parse_url($currenturl, PHP_URL_HOST))),
+			'meta' => array( 'title' => __( 'Google Malware & Security', 'abovethefold' ), 'target' => '_blank' )
+		) );
+
+		//
+		$admin_bar->add_node( array(
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-pingdom',
 			'title' => __( 'Pingdom Tools', 'abovethefold' ),
 			'href' => 'http://tools.pingdom.com/fpt/?url='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'Pingdom Tools', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-webpagetest',
 			'title' => __( 'WebPageTest.org', 'abovethefold' ),
 			'href' => 'http://www.webpagetest.org/?url='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'WebPageTest.org', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-gtmetrix',
 			'title' => __( 'GTMetrix', 'abovethefold' ),
 			'href' => 'http://gtmetrix.com/?url='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'GTMetrix', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-ssllabs',
 			'title' => __( 'SSL Labs', 'abovethefold' ),
 			'href' => 'https://www.ssllabs.com/ssltest/analyze.html?d='.urlencode($currenturl).'',
 			'meta' => array( 'title' => __( 'SSL Labs', 'abovethefold' ), 'target' => '_blank' )
 		) );
 		$admin_bar->add_node( array(
-			'parent' => 'abovethefold-check',
+			'parent' => 'abovethefold',
 			'id' => 'abovethefold-check-intodns',
 			'title' => __( 'Into DNS', 'abovethefold' ),
-			'href' => 'http://www.intodns.com/'.urlencode(parse_url($currenturl, PHP_URL_HOST)).'',
+			'href' => 'http://www.intodns.com/'.urlencode(str_replace('www.','',parse_url($currenturl, PHP_URL_HOST))).'',
 			'meta' => array( 'title' => __( 'Into DNS', 'abovethefold' ), 'target' => '_blank' )
 		) );
 	}
@@ -217,18 +274,17 @@ class Abovethefold_Admin {
 		$options['cssdelivery'] = (isset($input['cssdelivery']) && intval($input['cssdelivery']) === 1) ? true : false;
 		$options['gwfo'] = (isset($input['gwfo']) && intval($input['gwfo']) === 1) ? true : false;
 
+		$options['csseditor'] = (isset($input['csseditor']) && intval($input['csseditor']) === 1) ? true : false;
 		$options['loadcss_enhanced'] = (isset($input['loadcss_enhanced']) && intval($input['loadcss_enhanced']) === 1) ? true : false;
 		$options['cssdelivery_position'] = trim(sanitize_text_field($input['cssdelivery_position']));
 		$options['cssdelivery_ignore'] = trim(sanitize_text_field($input['cssdelivery_ignore']));
 		$options['cssdelivery_remove'] = trim(sanitize_text_field($input['cssdelivery_remove']));
 		$options['debug'] = (isset($input['debug']) && intval($input['debug']) === 1) ? true : false;
+		$options['adminbar'] = (isset($input['adminbar']) && intval($input['adminbar']) === 1) ? true : false;
+		$options['localizejs_enabled'] = (isset($input['localizejs_enabled']) && intval($input['localizejs_enabled']) === 1) ? true : false;
+		$options['cssdelivery_renderdelay'] = (isset($input['cssdelivery_renderdelay']) && is_numeric($input['cssdelivery_renderdelay']) && intval($input['cssdelivery_renderdelay']) > 0) ? intval($input['cssdelivery_renderdelay']) : false;
 
-		/**
-		 * Localize Javascript Settings
-		 */
-		$options['localizejs'] = (is_array($input['localizejs'])) ? $input['localizejs'] : array();
-
-		$css = trim(sanitize_text_field(stripslashes($input['css'])));
+		$css = trim(stripslashes($input['css']));
 
 		$cssfile = $this->CTRL->cache_path() . 'inline.min.css';
 		file_put_contents($cssfile,$css);
@@ -236,6 +292,40 @@ class Abovethefold_Admin {
 		update_option('abovethefold',$options);
 
 		wp_redirect(admin_url('admin.php?page=abovethefold'));
+		exit;
+    }
+
+    /**
+	 * Update localize javascript
+	 */
+	public function update_localizejs() {
+		check_admin_referer('abovethefold');
+
+		if ( get_magic_quotes_gpc() ) {
+			$_POST = array_map( 'stripslashes_deep', $_POST );
+			$_GET = array_map( 'stripslashes_deep', $_GET );
+			$_COOKIE = array_map( 'stripslashes_deep', $_COOKIE );
+			$_REQUEST = array_map( 'stripslashes_deep', $_REQUEST );
+		}
+
+		$options = get_option('abovethefold');
+		if (!is_array($options)) {
+			$options = array();
+		}
+
+		$input = $_POST['abovethefold'];
+		if (!is_array($input)) {
+			$input = array();
+		}
+
+		/**
+		 * Localize Javascript Settings
+		 */
+		$options['localizejs'] = (is_array($input['localizejs'])) ? $input['localizejs'] : array();
+
+		update_option('abovethefold',$options);
+
+		wp_redirect(admin_url('admin.php?page=abovethefold&tab=localizejs'));
 		exit;
     }
 
@@ -388,7 +478,8 @@ class Abovethefold_Admin {
 		$this->options = $options;
 
 		if ($error) {
-			return;
+			wp_redirect(admin_url('admin.php?page=abovethefold&tab=generator#server'));
+			exit;
 		}
 
 		/**
@@ -418,29 +509,29 @@ class Abovethefold_Admin {
 			}
 		}
 
-		wp_redirect(admin_url('admin.php?page=abovethefold'));
+		wp_redirect(admin_url('admin.php?page=abovethefold&tab=generator'));
 		exit;
 	}
 
 	public function settings_tabs( $current = 'homepage' ) {
         $tabs = array(
-        	'settings' => 'Critical Path CSS Settings',
-        	'online' => 'Online Generator',
-			'server' => 'Server-side Generator',
-			'extract' => 'Extract Full CSS'
+        	'settings' => 'Settings',
+        	'generator' => 'Critical Path CSS Generator',
+			'extract' => 'Extract Full CSS',
+			'localizejs' => 'Localize Javascript <span style="font-weight:normal;">(BETA)</span>'
         );
         echo '<div id="icon-themes" class="icon32"><br></div>';
-        echo '<h2 class="nav-tab-wrapper">';
+        echo '<h1 class="nav-tab-wrapper">';
         foreach( $tabs as $tab => $name ){
             $class = ( $tab == $current ) ? ' nav-tab-active' : '';
             echo "<a class='nav-tab$class' href='?page=abovethefold&tab=$tab'>$name</a>";
 
         }
-        echo '</h2>';
+        echo '</h1>';
     }
 
 	public function settings_page() {
-		global $pagenow;
+		global $pagenow, $wp_query;
 
 		$options = get_site_option('abovethefold');
 		if (!is_array($options)) {
@@ -466,18 +557,19 @@ class Abovethefold_Admin {
 		if (have_posts()) {
 			while (have_posts()) {
 				the_post();
-				$default_paths[] = str_replace(get_option('siteurl'),'',get_permalink($post->ID));
+				$default_paths[] = str_replace(get_option('siteurl'),'',get_permalink($wp_query->post->ID));
 				break;
 			}
 		}
 
 		// Get random page
+		$post = false;
 		$args = array( 'post_type' => 'page', 'numberposts' => 1, 'orderby' => 'rand' );
 		query_posts($args);
 		if (have_posts()) {
 			while (have_posts()) {
 				the_post();
-				$default_paths[] = str_replace(get_option('siteurl'),'',get_permalink($post->ID));
+				$default_paths[] = str_replace(get_option('siteurl'),'',get_permalink($wp_query->post->ID));
 				break;
 			}
 		}
@@ -494,11 +586,9 @@ class Abovethefold_Admin {
         }
 
 ?>
-<div class="wrap"></div>
-
-<h2 class="option_title"><?php _e('Above The Fold Optimization', 'abovethefold') ?></h2>
-<p>This plugin enables to pass the "<em>Eliminate render-blocking JavaScript and CSS in above-the-fold content</em>"-rule from <a href="https://developers.google.com/speed/pagespeed/insights/" target="_blank">Google PageSpeed Insights</a>.</p>
-
+<div class="wrap">
+<h1><?php _e('Above The Fold Optimization', 'abovethefold') ?></h1>
+</div>
 <?php
 
 		if ( !isset ( $_GET['tab'] ) ) {
@@ -515,21 +605,21 @@ class Abovethefold_Admin {
 
 			break;
 
-			case "online":
+			case "generator":
 
-				require_once('admin.online.class.php');
-
-			break;
-
-			case "server":
-
-				require_once('admin.server.class.php');
+				require_once('admin.generator.class.php');
 
 			break;
 
 			case "extract":
 
 				require_once('admin.extract.class.php');
+
+			break;
+
+			case "localizejs":
+
+				require_once('admin.localizejs.class.php');
 
 			break;
 		}
@@ -612,5 +702,32 @@ class Abovethefold_Admin {
 		}
 
 	}
+
+    /**
+	 * Upgrade plugin
+	 *
+	 * @since     2.3.10
+	 */
+	public function upgrade() {
+
+		if (!defined('WPABOVETHEFOLD_VERSION') || WPABOVETHEFOLD_VERSION !== get_site_option( 'wpabovethefold_version' )) {
+
+
+			/**
+			 * Clear cache on plugin update
+			 */
+
+			if (function_exists('w3tc_pgcache_flush')) {
+				w3tc_pgcache_flush();
+			} else if (function_exists('wp_cache_clear_cache')) {
+				wp_cache_clear_cache();
+			}
+
+			update_site_option( 'wpabovethefold_version', WPABOVETHEFOLD_VERSION );
+
+		}
+    }
+
+
 
 }

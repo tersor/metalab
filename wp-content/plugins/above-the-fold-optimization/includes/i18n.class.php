@@ -11,6 +11,7 @@
  * @subpackage abovethefold/includes
  * @author     Optimalisatie.nl <info@optimalisatie.nl>
  */
+
 class Abovethefold_i18n {
 
 	/**

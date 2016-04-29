@@ -10,6 +10,8 @@
  * @subpackage abovethefold/includes
  * @author     Optimalisatie.nl <info@optimalisatie.nl>
  */
+
+
 class Abovethefold_Optimization {
 
 	/**
@@ -31,6 +33,16 @@ class Abovethefold_Optimization {
 	public $buffertype;
 
 	/**
+	 * CSS buffer started
+	 */
+	public $css_buffer_started = false;
+
+	/**
+	 * Critical CSS replacement string
+	 */
+	public $criticalcss_replacement_string = '++|CRITICALCSS|++';
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0
@@ -48,11 +60,14 @@ class Abovethefold_Optimization {
 	 * @since    2.0
 	 */
 	public function start_buffering( ) {
-		if (is_feed() || is_admin()) {
-			return;
-		}
 
 		if ($this->CTRL->extractcss) {
+
+			if ($this->css_buffer_started) {
+				return;
+			}
+
+			$this->css_buffer_started = true;
 
 			ob_start(array($this, 'end_cssextract_buffering'));
 
@@ -70,9 +85,7 @@ class Abovethefold_Optimization {
 				$this->curl = 'file_get_contents';
 			}
 		} else {
-
 			ob_start(array($this, 'end_buffering'));
-
 		}
 	}
 
@@ -82,7 +95,11 @@ class Abovethefold_Optimization {
 	 * @since    1.0
 	 * @var      string    $buffer       HTML output
 	 */
-	public function end_buffering(&$buffer) {
+	public function end_buffering($buffer) {
+		if (is_feed() || is_admin()) {
+			return $buffer;
+		}
+
 		if ($this->CTRL->noop) { return $buffer; }
 
 		$optimize_delivery = (isset($this->CTRL->options['cssdelivery']) && intval($this->CTRL->options['cssdelivery']) === 1) ? 1 : 0;
@@ -190,8 +207,13 @@ class Abovethefold_Optimization {
 			$styles[] = $link;
 		}
 
-		$search[] = '|var CRITICALCSS;|Ui';
-		$replace[] = 'var CRITICALCSS = '.json_encode($styles).';';
+		$search[] = '#[\'|"]'.preg_quote($this->criticalcss_replacement_string).'[\'|"]#Ui';
+		// PHP 5.4+
+		if (defined('JSON_UNESCAPED_SLASHES')) {
+			$replace[] = json_encode($styles, JSON_UNESCAPED_SLASHES);
+		} else {
+			$replace[] = str_replace('\\/','/',json_encode($styles));
+		}
 
 		$buffer = preg_replace($search,$replace,$buffer);
 
@@ -204,7 +226,9 @@ class Abovethefold_Optimization {
 	 * @since    1.0
 	 */
 	public function end_cssextract_buffering($HTML) {
-
+		if (is_feed() || is_admin()) {
+			return $buffer;
+		}
 		if ( stripos($HTML,"<html") === false || stripos($HTML,"<xsl:stylesheet") !== false ) {
 			// Not valid HTML
 			return $HTML;
@@ -368,7 +392,7 @@ class Abovethefold_Optimization {
 			}
 			$reflog[$hash] = 1;
 
-			if (strpos($code,'* Above The Fold Optimization') !== false) {
+			if (strpos($code,'! Above The Fold Optimization') !== false) {
 				continue 1;
 			}
 
@@ -452,90 +476,7 @@ function human_filesize($bytes, $decimals = 2) {
     return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
 
-			$cssoutput = '<html>
-<head>
-<title>Full CSS extraction</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script type="text/javascript">
-function update_fullcss() {
-	var css = \'\';
-	jQuery.each(jQuery(\'input[name=css]:checked\'),function(i,el) {
-		css += \'/**\\n * \' + jQuery(\'#code\'+jQuery(el).val()).attr(\'title\') + \'\\n */\\n \' + jQuery(\'#code\'+jQuery(el).val()).val() + \'\\n\\n\';
-	});
-	jQuery(\'#fullcss\').val(css);
-}
-function show_inline(id) {
-	var w = window.open();
-	w.document.open(\'about:blank\',\'cssdisplay\');
-	w.document.write(document.getElementById(id).value);
-	w.document.close();
-}
-function download_css() {
-	var cssstr = \'\';
-	jQuery.each(jQuery(\'input[name=css]:checked\'),function(i,el) {
-		if (cssstr) {
-			cssstr += \',\';
-		}
-		cssstr += jQuery(el).val();
-	});
-	document.location.href = \''.$url.'?extract-css='.$extractkey.'&output=download&files=\' + cssstr;
-}
-</script>
-</head>
-<body>
-
-<h1>Full CSS Extraction</h1>
-
-<div>Url: <a href="'.$url.'" target="_blank">'.$url.'</a></div>
-<br />
-';
-
-			foreach($cssfiles as $file) {
-
-				if ($file['inline']) {
-					$cssoutput .= '<textarea style="display:none;" id="inline'.$file['src'].'_display">'.htmlentities(htmlentities($file['code'])).'</textarea>
-					<textarea style="display:none;" id="code'.md5($file['code']).'" title="' . $file['src'] . ' ('.human_filesize(strlen($file['inlinecode']), 2).')">'.htmlentities($file['inlinecode']).'</textarea>
-					<label style="display:block;border-bottom:solid 1px #efefef;padding-bottom:5px;margin-bottom:5px;">
-						<input type="checkbox" name="css" value="'.md5($file['code']).'" checked="true"> Inline <a href="javascript:void(0);" onclick="show_inline(\'inline'.$file['src'].'_display\');">'.$file['src'].'</a> ('.human_filesize(strlen($file['inlinecode']), 2).') - Media: '.implode(', ',$file['media']).'
-					</label>';
-				} else {
-					$cssoutput .= '<textarea style="display:none;" id="code'.md5($file['src']).'" title="'.$file['src'].' ('.human_filesize(strlen($file['code']), 2).')">'.htmlentities($file['code']).'</textarea>
-					<label style="display:block;border-bottom:solid 1px #efefef;padding-bottom:5px;margin-bottom:5px;">
-						<input type="checkbox" name="css" value="'.md5($file['src']).'" checked="true"> <a href="'.$file['src'].'" target="_blank">'.$file['src'].'</a> ('.human_filesize(strlen($file['code']), 2).') - Media: '.implode(', ',$file['media']).'
-					</label>';
-				}
-
-			}
-
-
-$cssoutput .= '
-
-<br />
-<fieldset>
-<legend>Full CSS (<span id="fullcsssize"></span>)</legend>
-<textarea style="width:100%;height:300px;" id="fullcss"></textarea>
-
-	<div style="padding:10px;text-align:center;">
-		<a href="'.$url.'?extract-css='.$extractkey.'&amp;output=download" onclick="download_css(); return false;">Download</a>
-	</div>
-
-</fieldset>
-
-<div style="font-size:20px;padding:10px;">
-	<a href="http://csscompressor.com/" target="_blank">CSS Minify</a> |
-	<a href="http://jonassebastianohlsson.com/criticalpathcssgenerator/" target="_blank">Critical Path CSS Generator</a>
-</div>
-
-<script type="text/javascript">
-	setTimeout(function() {
-		update_fullcss();
-	},100);
-	jQuery(\'input[name=css]\').on(\'change\',function() {
-		update_fullcss();
-	});
-</script>
-</body>
-</html>';
+			require_once(plugin_dir_path( realpath(dirname( __FILE__ ) . '/') ) . 'includes/extract-full-css.inc.php');
 
 			return $cssoutput;
 		}
@@ -574,17 +515,25 @@ $cssoutput .= '
 			$jscode .= ' ' . file_get_contents($file);
 		}
 
+		$jssettings = array(
+			'css' => $this->criticalcss_replacement_string
+		);
+
+		if (isset($this->CTRL->options['cssdelivery_renderdelay']) && intval($this->CTRL->options['cssdelivery_renderdelay']) > 0) {
+			$jssettings['delay'] = intval($this->CTRL->options['cssdelivery_renderdelay']);
+		}
+
 ?>
 <style type="text/css">
-/*!
- * Above The Fold Optimization <?php print $this->CTRL->get_version() . "\n"; ?>
- * (c) 2015 https://optimalisatie.nl
- */
+/*! Above The Fold Optimization <?php print $this->CTRL->get_version(); ?> */
 <?php if (file_exists($cssfile)) { print file_get_contents($cssfile); } ?></style>
-<script type="text/javascript"><?php print $jscode; ?> var CRITICALCSS;
+<script type="text/javascript" id="atfcss"><?php print $jscode; ?>
 <?php if (current_user_can( 'manage_options' ) && intval($this->CTRL->options['debug']) === 1) { print 'window.abovethefold.debug = true;'; }
+if (!empty($jssettings)) {
+	print "window['abovethefold'].config(".json_encode($jssettings).");";
+}
 if ($this->CTRL->options['cssdelivery_position'] === 'header') {
-	print "if (window['abovethefold']) { window['abovethefold'].css(CRITICALCSS); }";
+	print "window['abovethefold'].css();";
 }
 ?>
 </script>
@@ -602,7 +551,7 @@ if ($this->CTRL->options['cssdelivery_position'] === 'header') {
 		if ($this->OPTIMIZE->noop) { return; }
 
 		if (empty($this->CTRL->options['cssdelivery_position']) || $this->CTRL->options['cssdelivery_position'] === 'footer') {
-        	print "<script type=\"text/javascript\">if (window['abovethefold']) { window['abovethefold'].css(CRITICALCSS); }</script>";
+        	print "<script type=\"text/javascript\">if (window['abovethefold']) { window['abovethefold'].css(); }</script>";
         }
 
 	}
@@ -611,7 +560,7 @@ if ($this->CTRL->options['cssdelivery_position'] === 'header') {
 	 * Skip autoptimize CSS
 	 */
 	public function autoptimize_skip_css($excludeCSS) {
-		$excludeCSS .= ',* Above The Fold Optimization,';
+		$excludeCSS .= ',! Above The Fold Optimization,';
 		return $excludeCSS;
 	}
 
@@ -619,7 +568,7 @@ if ($this->CTRL->options['cssdelivery_position'] === 'header') {
 	 * Skip autoptimize Javascript
 	 */
 	public function autoptimize_skip_js($excludeJS) {
-		$excludeJS .= ',css(CRITICALCSS),var CRITICALCSS';
+		$excludeJS .= ',abovethefold\'].css(),' . $this->criticalcss_replacement_string;
 
 		if ($this->CTRL->options['gwfo']) {
 			$excludeJS .= ',WebFontConfig';
@@ -702,7 +651,7 @@ if ($this->CTRL->options['cssdelivery_position'] === 'header') {
 		/**
 		 * Localize Javascript
 		 */
-		if ($this->CTRL->options['localizejs']['enabled']) {
+		if ($this->CTRL->options['localizejs_enabled']) {
 			$js = $this->CTRL->localizejs->parse_js($js);
 		}
 
@@ -761,9 +710,18 @@ if ($this->CTRL->options['cssdelivery_position'] === 'header') {
 		}
 
 		/**
+		 * Old localizejs enabled setting conversion
+		 *
+		 * @since 2.3.5
+		 */
+		if (!isset($this->CTRL->options['localizejs_enabled']) && isset($this->CTRL->options['localizejs']) && intval($this->CTRL->options['localizejs']['enabled']) === 1) {
+			$this->CTRL->options['localizejs_enabled'] = 1;
+		}
+
+		/**
 		 * Localize Javascript
 		 */
-		if ($this->CTRL->options['localizejs']['enabled']) {
+		if ($this->CTRL->options['localizejs_enabled']) {
 			$html = $this->CTRL->localizejs->parse_html($html);
 		}
 

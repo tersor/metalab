@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class autoptimizeConfig {
 	private $config = null;
 	static private $instance = null;
-	
+
 	//Singleton: private construct
 	private function __construct() {
 		if( is_admin() ) {
@@ -41,13 +41,20 @@ class autoptimizeConfig {
 	
 	public function show() {
 ?>
-<style>input[type=url]:invalid {color: red; border-color:red;} .form-table th{font-weight:100;} #futtta_feed ul{list-style:outside;} #futtta_feed {font-size:medium; margin:0px 20px;}</style>
+<style>input[type=url]:invalid {color: red; border-color:red;} .form-table th{font-weight:100;} #futtta_feed ul{list-style:outside;} #futtta_feed {font-size:medium; margin:0px 20px;} #ao_hide_adv,#ao_show_adv{float:right;margin-top:10px;margin-right:10px;}</style>
 
 <div class="wrap">
 
 <h1><?php _e('Autoptimize Settings','autoptimize'); ?></h1>
 
+<?php if (version_compare(PHP_VERSION, '5.3.0') < 0) { ?>
+<div class="notice-error notice"><?php _e('<p><strong>You are using a very old version of PHP</strong> (5.2.x or older) which has <a href="http://blog.futtta.be/2016/03/15/why-would-you-still-be-on-php-5-2/" target="_blank">serious security and performance issues</a>. Please ask your hoster to provide you with an upgrade path to 5.6 or 7.0</p>','autoptimize'); ?></div>
+<?php } ?>
+
 <div style="float:left;width:70%;">
+
+<?php echo $this->ao_admin_tabs(); ?>
+
 <?php 
 if (get_option('autoptimize_show_adv','0')=='1') {
 	?>
@@ -75,7 +82,7 @@ if (get_option('autoptimize_show_adv','0')=='1') {
 <tr class="html_sub" valign="top">
 <th scope="row"><?php _e('Keep HTML comments?','autoptimize'); ?></th>
 <td><label for="autoptimize_html_keepcomments"><input type="checkbox" name="autoptimize_html_keepcomments" <?php echo get_option('autoptimize_html_keepcomments')?'checked="checked" ':''; ?>/>
-<?php _e('Enable this if you want HTML comments to remain in the page, needed for e.g. AdSense to function properly.','autoptimize'); ?></label></td>
+<?php _e('Enable this if you want HTML comments to remain in the page.','autoptimize'); ?></label></td>
 </tr>
 </table>
 
@@ -87,7 +94,7 @@ if (get_option('autoptimize_show_adv','0')=='1') {
 </tr>
 <tr valign="top" class="hidden js_sub ao_adv">
 <th scope="row"><?php _e('Force JavaScript in &lt;head&gt;?','autoptimize'); ?></th>
-<td><label for="autoptimize_js_forcehead"><input type="checkbox" name="autoptimize_js_forcehead" <?php echo get_option('autoptimize_js_forcehead')?'checked="checked" ':''; ?>/>
+<td><label for="autoptimize_js_forcehead"><input type="checkbox" name="autoptimize_js_forcehead" <?php echo get_option('autoptimize_js_forcehead','1')?'checked="checked" ':''; ?>/>
 <?php _e('Load JavaScript early, reducing the chance of JS-errors but making it render blocking. You can disable this if you\'re not aggregating inline JS and you want JS to be deferred.','autoptimize'); ?></label></td>
 </tr>
 <?php if (get_option('autoptimize_js_justhead')) { ?>
@@ -187,7 +194,7 @@ if (get_option('autoptimize_show_adv','0')=='1') {
 <td><?php
 	$AOstatArr=autoptimizeCache::stats(); 
 	$AOcacheSize=round($AOstatArr[1]/1024);
-	echo $AOstatArr[0]." files, totalling ".$AOcacheSize." Kbytes (calculated at ".date("H:i e", $AOstatArr[2]).")";
+	echo $AOstatArr[0].__(' files, totalling ','autoptimize').$AOcacheSize.__(' Kbytes (calculated at ','autoptimize').date("H:i e", $AOstatArr[2]).')';
 ?></td>
 </tr>
 <tr valign="top" class="hidden ao_adv">
@@ -208,21 +215,23 @@ if (get_option('autoptimize_show_adv','0')=='1') {
 <style>.autoptimize_banner ul li {font-size:medium;text-align:center;} .unslider-arrow {left:unset;}</style>
 <div class="autoptimize_banner">
 	<ul>
-	<?php
-	$AO_banner=get_transient("autoptimize_banner");
-	if (empty($AO_banner)) {
-		$banner_resp = wp_remote_get("http://optimizingmatters.com/autoptimize_news.html");
-		if (!is_wp_error($banner_resp)) {
-			if (wp_remote_retrieve_response_code($banner_resp)=="200") {
-				$AO_banner = wp_kses_post(wp_remote_retrieve_body($banner_resp));
-				set_transient("autoptimize_banner",$AO_banner,DAY_IN_SECONDS);
-			}
-		}
-	}
-	echo $AO_banner;
-	?>
-	<li><?php _e("Need help? <a href='https://wordpress.org/plugins/autoptimize/faq/'>Check out the FAQ</a> or post your question on <a href='http://wordpress.org/support/plugin/autoptimize'>the support-forum</a>."); ?></li>
-	<li><?php _e("Happy with Autoptimize?","autoptimize"); ?><br /><a href="<?php echo network_admin_url(); ?>plugin-install.php?tab=search&type=author&s=futtta"><?php _e("Try my other plugins!"); ?></a></li>
+        <?php
+        if (apply_filters('autoptimize_settingsscreen_remotehttp',true)) {
+            $AO_banner=get_transient("autoptimize_banner");
+            if (empty($AO_banner)) {
+                $banner_resp = wp_remote_get("http://optimizingmatters.com/autoptimize_news.html");
+                if (!is_wp_error($banner_resp)) {
+                    if (wp_remote_retrieve_response_code($banner_resp)=="200") {
+                        $AO_banner = wp_kses_post(wp_remote_retrieve_body($banner_resp));
+                        set_transient("autoptimize_banner",$AO_banner,DAY_IN_SECONDS);
+                    }
+                }
+            }
+            echo $AO_banner;
+        }
+        ?>
+        <li><?php _e("Need help? <a href='https://wordpress.org/plugins/autoptimize/faq/'>Check out the FAQ</a> or post your question on <a href='http://wordpress.org/support/plugin/autoptimize'>the support-forum</a>.","autoptimize"); ?></li>
+        <li><?php _e("Happy with Autoptimize?","autoptimize"); ?><br /><a href="<?php echo network_admin_url(); ?>plugin-install.php?tab=search&type=author&s=optimizingmatters"><?php _e("Try my other plugins!","autoptimize"); ?></a></li>
 	</ul>
 </div>
 <div style="float:right;width:30%" id="autoptimize_admin_feed">
@@ -475,28 +484,59 @@ if (get_option('autoptimize_show_adv','0')=='1') {
 	}
 
 	private function getFutttaFeeds($url) {
-		$rss = fetch_feed( $url );
-		$maxitems = 0;
-
-		if ( ! is_wp_error( $rss ) ) {
-			$maxitems = $rss->get_item_quantity( 7 ); 
-			$rss_items = $rss->get_items( 0, $maxitems );
+		if (apply_filters('autoptimize_settingsscreen_remotehttp',true)) {
+			$rss = fetch_feed( $url );
+			$maxitems = 0;
+	
+			if ( ! is_wp_error( $rss ) ) {
+				$maxitems = $rss->get_item_quantity( 7 ); 
+				$rss_items = $rss->get_items( 0, $maxitems );
+			}
+			?>
+			<ul>
+				<?php if ( $maxitems == 0 ) : ?>
+					<li><?php _e( 'No items', 'autoptimize' ); ?></li>
+				<?php else : ?>
+					<?php foreach ( $rss_items as $item ) : ?>
+						<li>
+							<a href="<?php echo esc_url( $item->get_permalink() ); ?>"
+								title="<?php printf( __( 'Posted %s', 'autoptimize' ), $item->get_date('j F Y | g:i a') ); ?>">
+								<?php echo esc_html( $item->get_title() ); ?>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</ul>
+			<?php
 		}
-		?>
-		<ul>
-			<?php if ( $maxitems == 0 ) : ?>
-				<li><?php _e( 'No items', 'autoptimize' ); ?></li>
-			<?php else : ?>
-				<?php foreach ( $rss_items as $item ) : ?>
-					<li>
-						<a href="<?php echo esc_url( $item->get_permalink() ); ?>"
-							title="<?php printf( __( 'Posted %s', 'autoptimize' ), $item->get_date('j F Y | g:i a') ); ?>">
-							<?php echo esc_html( $item->get_title() ); ?>
-						</a>
-					</li>
-				<?php endforeach; ?>
-			<?php endif; ?>
-		</ul>
-		<?php 
 	}
+    
+    // based on http://wordpress.stackexchange.com/a/58826
+    static function ao_admin_tabs(){
+		$tabs = apply_filters('autoptimize_filter_settingsscreen_tabs',array('autoptimize' => __('Main','autoptimize')));
+        $tabContent="";
+
+        if (count($tabs)>1) {
+			if(isset($_GET['page'])){
+				$currentId = $_GET['page'];
+			} else {
+				$currentId = "autoptimize";
+			}
+
+            $tabContent .= "<h2 class=\"nav-tab-wrapper\">";
+            foreach($tabs as $tabId => $tabName){
+                if($currentId == $tabId){
+                    $class = " nav-tab-active";
+                } else{
+                    $class = "";
+                }
+                $tabContent .= '<a class="nav-tab'.$class.'" href="?page='.$tabId.'">'.$tabName.'</a>';
+            }
+            $tabContent .= "</h2>";
+        } else {
+            $tabContent = "<hr/>";
+        }
+        
+        return $tabContent;
+    }
 }
