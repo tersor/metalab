@@ -3,9 +3,9 @@
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PECL Redis Extension and the Predis library for PHP.
-Version: 1.3.1
+Version: 1.3.2
 Author: Till Krüss
-Author URI: http://till.kruss.me/
+Author URI: https://till.im/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -610,7 +610,7 @@ class WP_Object_Cache {
 
 		$result = $this->redis->get( $derived_key );
 
-		if ($result === NULL) {
+		if ($result === null || $result === false) {
 			$found = false;
 			$this->cache_misses++;
 
@@ -625,9 +625,15 @@ class WP_Object_Cache {
 
 		$value = is_object( $value ) ? clone $value : $value;
 
-		do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
+		}
 
-		return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+		if ( function_exists( 'apply_filters' ) ) {
+			return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+		} else {
+			return $value;
+		}
 	}
 
 	/**
@@ -722,7 +728,9 @@ class WP_Object_Cache {
 			$this->add_to_internal_cache( $derived_key, $value );
 		}
 
-		do_action( 'redis_object_cache_set', $key, $value, $group, $expiration );
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'redis_object_cache_set', $key, $value, $group, $expiration );
+		}
 
 		return $result;
 	}
