@@ -1,6 +1,7 @@
 .DS_Store
 .sass-cache
 .htaccess
+wp-cli.yml
 debug.log
 local-config.php
 config.yaml
