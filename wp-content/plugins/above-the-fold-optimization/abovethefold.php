@@ -2,24 +2,31 @@
 /**
  * Above the fold optimization for WordPress
  *
- * This optimization plugin enables above the fold optimization based on the output of a critical path CSS generator and to pass the "Eliminate render-blocking JavaScript and CSS in above-the-fold content" rule from Google PageSpeed.
+ * Above the fold optimization toolkit that enables to achieve a Google PageSpeed 100 Score. Supports most optimization, minification and full page cache plugins.
  *
- * @link              https://optimalisatie.nl/
+ * @link              https://pagespeed.pro/
  * @since             1.0
  * @package           abovethefold
  *
  * @wordpress-plugin
  * Plugin Name:       Above The Fold Optimization
- * Plugin URI:        https://en.optimalisatie.nl/
- * Description:       Above the fold optimization to pass the "<em>Eliminate render-blocking JavaScript and CSS in above-the-fold content</em>" rule from Google PageSpeed.
- * Version:           2.3.14
- * Author:            Optimalisatie.nl
- * Author URI:        https://optimalisatie.nl/
+ * Plugin URI:        https://pagespeed.pro/
+ * Description:       Above the fold optimization toolkit that enables to achieve a <a href="https://developers.google.com/speed/docs/insights/about" target="_blank">Google PageSpeed</a> 100 Score. Supports most optimization, minification and full page cache plugins.
+ * Version:           2.7.10
+ * Author:            PageSpeed.pro
+ * Author URI:        https://pagespeed.pro/
  * Text Domain:       abovethefold
  * Domain Path:       /languages
  */
 
-define('WPABOVETHEFOLD_VERSION','2.3.14');
+define('WPABTF_VERSION','2.7.10');
+define('WPABTF_URI', plugin_dir_url( __FILE__ ));
+define('WPABTF_PATH', plugin_dir_path( __FILE__ ));
+define('WPABTF_SELF', __FILE__);
+
+# cache directory
+define('ABTF_CACHE_DIR', trailingslashit(WP_CONTENT_DIR) . 'cache/abtf/');
+define('ABTF_CACHE_URL', trailingslashit(WP_CONTENT_URL) . 'cache/abtf/');
 
 if ( ! defined( 'WPINC' ) ) {
 	die;

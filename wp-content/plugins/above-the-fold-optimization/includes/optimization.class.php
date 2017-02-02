@@ -8,7 +8,7 @@
  * @since      1.0
  * @package    abovethefold
  * @subpackage abovethefold/includes
- * @author     Optimalisatie.nl <info@optimalisatie.nl>
+ * @author     PageSpeed.pro <info@pagespeed.pro>
  */
 
 
@@ -16,21 +16,8 @@ class Abovethefold_Optimization {
 
 	/**
 	 * Above the fold controller
-	 *
-	 * @since    1.0
-	 * @access   public
-	 * @var      object    $CTRL
 	 */
-	public $CTRL;
-
-	/**
-	 * Buffer type
-	 *
-	 * @since    1.0
-	 * @access   public
-	 * @var      string   $buffertype W3 Total Cache buffer or regular buffer
-	 */
-	public $buffertype;
+	public $CTRL; 
 
 	/**
 	 * CSS buffer started
@@ -38,694 +25,1061 @@ class Abovethefold_Optimization {
 	public $css_buffer_started = false;
 
 	/**
-	 * Critical CSS replacement string
+	 * Optimize CSS delivery
 	 */
-	public $criticalcss_replacement_string = '++|CRITICALCSS|++';
+	public $optimize_css_delivery = false;
 
 	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0
-	 * @var      object    $Optimization       The Optimization class.
+	 * Optimize Javascript delivery
+	 */
+	public $optimize_js_delivery = false;
+
+	/**
+	 * Javascript replacement string
+	 */
+	public $js_replacement_string = 'ABTF_JS';
+
+	/**
+	 * Critical CSS replacement string
+	 */
+	public $criticalcss_replacement_string = 'ABTF_CRITICALCSS';
+
+	/**
+	 * Initialize the class and set its properties
 	 */
 	public function __construct( &$CTRL ) {
 
 		$this->CTRL =& $CTRL;
 
+		if ($this->CTRL->disabled) {
+			return; // above the fold optimization disabled for area / page
+		}
+
+		/**
+		 * Optimize CSS delivery
+		 */
+		$this->optimize_css_delivery = (isset($this->CTRL->options['cssdelivery']) && intval($this->CTRL->options['cssdelivery']) === 1) ? true : false;
+
+		/**
+		 * Optimize Javascript loading
+		 */
+		$this->optimize_js_delivery = (isset($this->CTRL->options['jsdelivery']) && intval($this->CTRL->options['jsdelivery']) === 1) ? true : false;
+
+		/**
+		 * Extract Full CSS view
+		 */
+		if (in_array($this->CTRL->view,array('extract-css','abtf-buildtool-css'))) {
+
+			// load optimization controller
+			$this->CTRL->extractcss = new Abovethefold_ExtractFullCss( $this->CTRL );
+
+		} else if ($this->CTRL->view === 'compare-abtf') {
+
+			/**
+			 * Compare Critical CSS view
+			 */
+			$this->CTRL->compare = new Abovethefold_CompareABTF( $this->CTRL );
+			
+		} else {
+
+			/**
+			 * Standard view
+			 */
+
+			/**
+			 * Check if an optimization module offers an output buffer hook
+			 */
+			if (!$this->CTRL->plugins->html_output_hook($this)) {
+
+				/**
+				 * Use Above The Fold Optimization standard output buffer
+				 */
+				$this->CTRL->loader->add_action('init', $this, 'start_output_buffer',99999);
+
+				/**
+				 * Move output buffer to front of other buffers
+				 * /
+				$this->CTRL->loader->add_action('template_redirect', $this, 'move_ob_to_front',99999);
+				*/
+			}
+
+		}
+
+		// wordpress header
+		$this->CTRL->loader->add_action('wp_head', $this, 'header', 1);
+
+		// wordpress footer
+		$this->CTRL->loader->add_action('wp_print_footer_scripts', $this, 'footer',99999);
+
 	}
 
 	/**
 	 * Init output buffering
-	 *
-	 * @since    2.0
 	 */
-	public function start_buffering( ) {
+	public function start_output_buffer( ) {
 
-		if ($this->CTRL->extractcss) {
+		/**
+		 * Re-check if an optimization module offers an output buffer hook, the buffer may be started in the init hook
+		 */
+		if (!$this->CTRL->plugins->html_output_hook($this)) {
 
-			if ($this->css_buffer_started) {
-				return;
-			}
-
-			$this->css_buffer_started = true;
-
-			ob_start(array($this, 'end_cssextract_buffering'));
-
-			/**
-			 * Curl
-			 */
-			if (function_exists('curl_version')) {
-				require_once(plugin_dir_path( realpath(dirname( __FILE__ ) . '/') ) . 'includes/curl.class.php');
-				$this->curl = new Abovethefold_Curl( $this );
-			} else if (!ini_get('allow_url_fopen')) {
-				$this->CTRL->set_notice('PHP lib Curl should be installed or <em>allow_url_fopen</em> should be enabled.','error');
-				$this->curl = false;
-				return;
-			} else {
-				$this->curl = 'file_get_contents';
-			}
-		} else {
-			ob_start(array($this, 'end_buffering'));
+			// set output buffer
+			ob_start(array($this, 'process_output_buffer'));
 		}
 	}
 
 	/**
-	 * Rewrite callback
-	 *
-	 * @since    1.0
-	 * @var      string    $buffer       HTML output
+	 * Move Above The Fold Optimization output buffer to front
 	 */
-	public function end_buffering($buffer) {
-		if (is_feed() || is_admin()) {
+	public function move_ob_to_front() {
+
+		// get active output buffers
+		$ob_callbacks = ob_list_handlers();
+
+		// check if Above The Fold Optimization is last output buffer
+		// try to move to front
+		if (
+			!empty($ob_callbacks) 
+			&& in_array('Abovethefold_Optimization::process_output_buffer',$ob_callbacks)
+		 	&& $ob_callbacks[(count($ob_callbacks) - 1)] !== 'Abovethefold_Optimization::process_output_buffer'
+		 ) {
+
+			$callbacks_to_move = array();
+
+			$n = count($ob_callbacks) - 1;
+			while ($ob_callbacks[$n] && $ob_callbacks[$n] !== 'Abovethefold_Optimization::process_output_buffer') {
+
+				if ($ob_callbacks[$n] === 'default output handler') {
+					$callbacks_to_move[] = false;
+				} else {
+					if (strpos($ob_callbacks[$n],'::') !== false) {
+						$callback = explode('::',$ob_callbacks[$n]);
+
+						// check if singleton
+						if (is_callable($callback[0].'::getInstance')) {
+							$callbacks_to_move[] = array( call_user_func( array( $callback[0], 'getInstance' ) ), $callback[1]);
+						} else if (is_callable($callback[0].'::singleton')) {
+							$callbacks_to_move[] = array( call_user_func( array( $callback[0], 'singleton' ) ), $callback[1]);
+						} else {
+							$callbacks_to_move[] = $ob_callbacks[$n];
+						}
+					} else {
+						$callbacks_to_move[] = $ob_callbacks[$n];
+					}
+				}
+				
+				$n--;
+			}
+
+			// end output buffers in front of Above The Fold output buffer
+			foreach ($callbacks_to_move as $callback) {
+				ob_end_clean();
+			}
+
+			// end above the fold output buffer
+			ob_end_clean();
+
+			// restore output buffers
+			$callbacks_to_restore = array_reverse($callbacks_to_move);
+			foreach ($callbacks_to_restore as $callback) {
+				if ($callback) {
+					@ob_start($callback);
+				} else {
+					// ignore output buffers without callback
+					// @todo
+				}
+			} 
+
+			// restore Above The Fold Optimization output buffer in front
+			ob_start(array($this, 'process_output_buffer'));
+
+			$ob_callbacks = ob_list_handlers();
+		}
+	}
+
+	/**
+	 * Extract stylesheets from HTML
+	 */
+	public function extract_stylesheets($HTML) {
+
+		$stylesheets = array();
+
+		// stylesheet regex
+		$stylesheet_regex = '#(<\!--\[if[^>]+>\s*)?<link[^>]+>#is';
+
+		if (preg_match_all($stylesheet_regex,$HTML,$out)) {
+
+			foreach ($out[0] as $n => $stylesheet) {
+
+				/**
+				 * Conditional, skip
+				 */
+				if (trim($out[1][$n]) != '') {
+					continue 1;
+				}
+
+				/**
+				 * No href or rel="stylesheet", skip
+				 */
+				if (strpos($stylesheet,'href') === false || strpos($stylesheet,'stylesheet') === false || !preg_match( '#href\s*=\s*["\']([^"\']+)["\']#i', $stylesheet, $hrefOut )) {
+					continue 1;
+				}
+
+				$stylesheets[] = array($hrefOut[1],$out[0][$n]);
+			}
+		}
+
+		return $stylesheets;
+	}
+
+	/**
+	 * Extract scripts from HTML
+	 */
+	public function extract_scripts($HTML) {
+
+		$scripts = array();
+
+		// script regex
+		$script_regex = '#(<\!--\[if[^>]+>\s*)?<script[^>]+src[^>]+>([^<]*</script>)?#is';
+
+		if (preg_match_all($script_regex,$HTML,$out)) {
+
+			foreach ($out[0] as $n => $script) {
+
+				/**
+				 * Conditional, skip
+				 */
+				if (trim($out[1][$n]) != '') {
+					continue 1;
+				}
+
+				/**
+				 * No src, skip
+				 */
+				if (strpos($script,'src') === false|| !preg_match( '#src\s*=\s*["\']([^"\']+)["\']#i', $script, $srcOut )) {
+					continue 1;
+				}
+
+				$scripts[] = array(
+					$srcOut[1],  // script
+					$out[0][$n] // tag
+				);
+			}
+		}
+
+		return $scripts;
+	}
+
+	/**
+	 * Get script dependencies
+	 */
+	public function wp_script_dependencies() {
+		global $wp_scripts;
+
+		$scriptdeps = array();
+		$dependencygroups = array();
+		$dependencyreferences = array();
+
+		// load dependency references from WordPress scripts
+		foreach ($wp_scripts->done as $handle) {
+			if (isset($wp_scripts->registered[$handle]) && isset($wp_scripts->registered[$handle]->handle)) {
+
+				// Handle
+				$handle = (string) $wp_scripts->registered[$handle]->handle;
+				if (trim($handle) === '') {
+					continue 1;
+				}
+
+				$handleindex = array_search( $handle, $dependencyreferences );
+				if ($handleindex === false) {
+					$handleindex = count($dependencyreferences);
+					$dependencyreferences[$handleindex] = $handle;
+				}
+
+				$deps = array();
+				$handledeps = (isset($wp_scripts->registered[$handle]->deps) && is_array($wp_scripts->registered[$handle]->deps)) ? $wp_scripts->registered[$handle]->deps : array();
+
+				// jquery migrate is part of jquery group
+				if ($handle === 'jquery-migrate') {
+					// wait for jquery-core
+					$handledeps[] = 'jquery-core';
+				}
+
+				// admin-bar requires jquery
+				if ($handle === 'admin-bar') {
+					// wait for jquery
+					$handledeps[] = 'jquery';
+				}
+
+				if (!empty($handledeps)) {
+					foreach ($handledeps as $dep) {
+						if (trim($dep) === '') { continue; }
+
+						$depindex = array_search( $dep, $dependencyreferences );
+						if ($depindex === false) {
+							$depindex = count($dependencyreferences);
+							$dependencyreferences[$depindex] = $dep;
+						}
+
+						$deps[] = $depindex;
+
+						$scriptdepsrefs[] = array($depindex,$dep);
+					}
+				}
+
+				if (!isset($wp_scripts->registered[$handle]->src) || trim($wp_scripts->registered[$handle]->src) === '') {
+
+					// group reference
+					if (!empty($deps)) {
+						$dependencygroups[$handleindex] = $deps;
+					}
+				} else {
+
+					$scriptdeps[str_replace(home_url(),'',$wp_scripts->registered[$handle]->src)] = array(
+						$handleindex,
+						$deps
+					);
+				}
+			}
+		}
+
+		return array($scriptdeps,$dependencygroups,$dependencyreferences);
+	}
+
+	/**
+	 * Rewrite callback
+	 */
+	public function process_output_buffer($buffer) {
+
+		// disabled, do not process buffer
+		if (!$this->CTRL->is_enabled()) {
 			return $buffer;
 		}
 
-		if ($this->CTRL->noop) { return $buffer; }
-
-		$optimize_delivery = (isset($this->CTRL->options['cssdelivery']) && intval($this->CTRL->options['cssdelivery']) === 1) ? 1 : 0;
-		if ($optimize_delivery === 0) {
+		if ($this->CTRL->view === 'abtf-buildtool-html') {
 			return $buffer;
 		}
 
-		/**
-		 * Ignore List
-		 */
-		$rows = preg_split('#[\n|\s|,]#Ui',$this->CTRL->options['cssdelivery_ignore']);
-		$ignorelist = array();
-		foreach ($rows as $row) {
-			if (trim($row) === '') {
-				continue 1;
-			}
-			$ignorelist[] = trim($row);
-		}
-
-		/**
-		 * Delete List
-		 */
-		$rows = preg_split('#[\n|\s|,]#Ui',$this->CTRL->options['cssdelivery_remove']);
-		$deletelist = array();
-		foreach ($rows as $row) {
-			if (trim($row) === '') {
-				continue 1;
-			}
-			$deletelist[] = trim($row);
-		}
-
+		// search / replace 
 		$search = array();
 		$replace = array();
 
-		$search[] = '|(jQuery\(function\(\) \{\s+mdf_init_search_form[^\}]+\}\)\;)|is';
-		$replace[] = 'head.ready(function() { $1 });';
+		// search / replace regex
+		$search_regex = array();
+		$replace_regex = array();
+
+		// apply pre HTML filters
+		$buffer = apply_filters('abtf_html_pre', $buffer);
 
 		/**
-		 * Parse CSS links
+		 * CSS Delivery Optimization
 		 */
-		$i = array();
-		$_styles = array();
-		if (preg_match_all('#(<\!--\[if[^>]+>)?([\s|\n]+)?<link([^>]+)href=[\'|"]([^\'|"]+)[\'|"]([^>]+)?>#is',$buffer,$out)) {
-			foreach ($out[4] as $n => $file) {
-				if (trim($out[1][$n]) != '' || strpos($out[3][$n] . $out[5][$n],'stylesheet') === false) {
-					$i[] = array($out[3][$n] . $out[5][$n],$file);
-					continue;
+		if ($this->optimize_css_delivery) {
+
+			/**
+			 * Ignore List
+			 *
+			 * Matching files will be ignored / left untouched in the HTML
+			 */
+			$ignorelist = array();
+			if (isset($this->CTRL->options['cssdelivery_ignore']) && !empty($this->CTRL->options['cssdelivery_ignore'])) {
+				foreach ($this->CTRL->options['cssdelivery_ignore'] as $row) {
+					$ignorelist[] = $row;
 				}
-				if (!empty($ignorelist)) {
-					$ignore = false;
-					foreach ($ignorelist as $_file) {
-						if (strpos($file,$_file) !== false) {
-							$ignore = true;
-							break 1;
-						}
-					}
-					if ($ignore) {
+			}
+
+			/**
+			 * Delete List
+			 *
+			 * Matching files will be removed from the HTML
+			 */
+			$deletelist = array();
+			if (isset($this->CTRL->options['cssdelivery_remove']) && !empty($this->CTRL->options['cssdelivery_remove'])) {
+				foreach ($this->CTRL->options['cssdelivery_remove'] as $row) {
+					$deletelist[] = $row;
+				}
+			}
+
+			/**
+			 * Parse CSS links
+			 */
+			$async_styles = array();
+
+			$stylesheets = $this->extract_stylesheets($buffer);
+			if (!empty($stylesheets)) {
+
+				foreach ($stylesheets as $stylesheet) {
+
+					list($file,$matchedTag) = $stylesheet;
+					if (empty($file)) { continue 1; }
+
+					$originalFile = $file;
+					$originalTag = $matchedTag;
+
+					// apply css file filter pre processing
+					$filterResult = apply_filters('abtf_cssfile_pre', $file);
+
+					// ignore file
+					if ($filterResult === 'ignore') {
 						continue;
 					}
-				}
 
-				if (!empty($deletelist)) {
-					$delete = false;
-					foreach ($deletelist as $_file) {
-						if (strpos($file,$_file) !== false) {
-							$delete = true;
-							break 1;
-						}
-					}
-					if ($delete) {
-						$search[] = '|<link[^>]+'.preg_quote($file).'[^>]+>|Ui';
+					// delete file
+					if ($filterResult === 'delete') {
+
+						// delete from HTML
+						$search[] = $matchedTag;
 						$replace[] = '';
 						continue;
 					}
-				}
 
-				$media = false;
-				if (strpos($out[0][$n],'media=') !== false) {
-                    $el = (array)simplexml_load_string($out[0][$n]);
-					$media = trim($el['@attributes']['media']);
-				}
-				if (!$media) {
-					$media = 'all';
-				}
-				$media = explode(',',$media);
+					// replace url
+					if ($filterResult && $filterResult !== $file) {
+						$file = $filterResult;
+					}
 
-				$_styles[] = array($media,$file);
+					// match file against ignore list
+					if (!empty($ignorelist)) {
+						$ignore = false;
+						foreach ($ignorelist as $ignored_file_string) {
+							if (strpos($file,$ignored_file_string) !== false) {
+								$ignore = true;
+								break 1;
+							}
+						}
+						if ($ignore) {
+							continue;
+						}
+					}
 
-				$search[] = '|<link[^>]+'.preg_quote($file).'[^>]+>|Ui';
-				$replace[] = '';
+					// match file against delete list
+					if (!empty($deletelist)) {
+						$delete = false;
+						foreach ($deletelist as $deleted_file_string) {
+							if (strpos($file,$deleted_file_string) !== false) {
+								$delete = true;
+								break 1;
+							}
+						}
+						if ($delete) {
+							$search[] = $matchedTag;
+							$replace[] = '';
+							continue;
+						}
+					}
+
+					// Detect media for file
+					$media = false;
+					if (strpos($out[0][$n],'media=') !== false) {
+	                    $el = (array)simplexml_load_string($out[0][$n]);
+						$media = trim($el['@attributes']['media']);
+					}
+					if (!$media) {
+						$media = 'all';
+					}
+
+					/**
+					 * Convert HTML entities
+					 */
+					$media = html_entity_decode($media,ENT_COMPAT,'utf-8');
+					$file = html_entity_decode($file,ENT_COMPAT,'utf-8');
+
+					// convert media to array
+					$media = explode(',',$media);
+
+					// add file to style array to be processed
+					$async_styles[] = array($media,$file);
+					
+					$search[] = $originalTag;
+					$replace[] = '';
+				}
+			}
+
+		} else {
+
+			/**
+			 * Filter CSS files
+			 */
+			if ($this->CTRL->options['gwfo'] || $this->CTRL->options['css_proxy'] || $this->CTRL->view === 'abtf-critical-only') {
+
+				$stylesheets = $this->extract_stylesheets($buffer);
+				if (!empty($stylesheets)) {
+
+					foreach ($stylesheets as $stylesheet) {
+
+						list($file,$matchedTag) = $stylesheet;
+						if (empty($file)) { continue 1; }
+
+						$originalFile = $file;
+						$originalTag = $matchedTag;
+
+						// apply filter for css file pre processing
+						$filterResult = apply_filters('abtf_cssfile_pre', $file);
+
+						// ignore file
+						if ($filterResult === 'ignore') {
+							continue;
+						}
+
+						// delete file
+						if ($filterResult === 'delete' || $this->CTRL->view === 'abtf-critical-only') {
+
+							// delete from HTML
+							$search[] = $matchedTag;
+							$replace[] = '';
+							continue;
+						}
+
+						// replace url
+						if ($filterResult && $filterResult !== $file) {
+
+							// change file in original tag
+							$newTag = str_replace($originalFile,$filterResult,$originalTag);
+							
+							$search[] = $originalTag;
+							$replace[] = $newTag;
+						}
+					}
+				}
+			}
+		}
+
+
+		/**
+		 * Javascript Delivery Optimization
+		 */
+		if ($this->optimize_js_delivery) {
+
+			/**
+			 * Ignore List
+			 *
+			 * Matching files will be ignored / left untouched in the HTML
+			 */
+			$ignorelist = array();
+			if (isset($this->CTRL->options['jsdelivery_ignore']) && !empty($this->CTRL->options['jsdelivery_ignore'])) {
+				foreach ($this->CTRL->options['jsdelivery_ignore'] as $row) {
+					$ignorelist[] = $row;
+				}
+			}
+
+			/**
+			 * Delete List
+			 *
+			 * Matching files will be removed from the HTML
+			 */
+			$deletelist = array();
+			if (isset($this->CTRL->options['jsdelivery_remove']) && !empty($this->CTRL->options['jsdelivery_remove'])) {
+				foreach ($this->CTRL->options['jsdelivery_remove'] as $row) {
+					$deletelist[] = $row;
+				}
+			}
+
+			/**
+			 * Force Async for all scripts
+			 */
+			$forceAsync = (isset($this->CTRL->options['jsdelivery_async_all']) && intval($this->CTRL->options['jsdelivery_async_all']) === 1) ? true : false;
+
+			/**
+			 * Async Force List
+			 *
+			 * Matching files will be loaded asynchrounously
+			 */
+			$asynclist = array();
+			if (!$forceAsync && isset($this->CTRL->options['jsdelivery_async']) && !empty($this->CTRL->options['jsdelivery_async'])) {
+				foreach ($this->CTRL->options['jsdelivery_async'] as $row) {
+					$asynclist[] = $row;
+				}
+			}
+
+			/**
+			 * Async Disabled List
+			 *
+			 * Matching files will be loaded non-async (blocking)
+			 */
+			$async_disabledlist = array();
+			if (isset($this->CTRL->options['jsdelivery_async_disabled']) && !empty($this->CTRL->options['jsdelivery_async_disabled'])) {
+				foreach ($this->CTRL->options['jsdelivery_async_disabled'] as $row) {
+					$async_disabledlist[] = $row;
+				}
+			}
+
+			/** 
+			 * Load WordPRess dependencies
+			 */
+			if (isset($this->CTRL->options['jsdelivery_deps']) && $this->CTRL->options['jsdelivery_deps']) {
+				list($wp_script_deps,$wp_script_depgroups,$wp_script_deprefs) = $this->wp_script_dependencies();
+			} else {
+				$wp_script_deps = false;
+			}
+
+			/**
+			 * Parse scripts
+			 */
+			$optimized_scripts = array();
+
+			$scripts = $this->extract_scripts($buffer);
+			if (!empty($scripts)) {
+
+				foreach ($scripts as $script) {
+
+					list($file,$matchedTag) = $script;
+					if (empty($file)) { continue 1; }
+
+					$originalFile = $file;
+					$originalTag = $matchedTag;
+
+					// apply css file filter pre processing
+					$filterResult = apply_filters('abtf_jsfile_pre', $file);
+
+					// ignore file
+					if ($filterResult === 'ignore') {
+						continue;
+					}
+
+					// delete file
+					if ($filterResult === 'delete') {
+
+						// delete from HTML
+						$search[] = $matchedTag;
+						$replace[] = '';
+						continue;
+					}
+
+					// replace url
+					if ($filterResult && $filterResult !== $file) {
+						$file = $filterResult;
+					}
+
+					// match file against ignore list
+					if (!empty($ignorelist)) {
+						$ignore = false;
+						foreach ($ignorelist as $ignored_file_string) {
+							if (strpos($file,$ignored_file_string) !== false) {
+								$ignore = true;
+								break 1;
+							}
+						}
+						if ($ignore) {
+							continue;
+						}
+					}
+
+					// match file against delete list
+					if (!empty($deletelist)) {
+						$delete = false;
+						foreach ($deletelist as $deleted_file_string) {
+							if (strpos($file,$deleted_file_string) !== false) {
+								$delete = true;
+								break 1;
+							}
+						}
+						if ($delete) {
+							$search[] = $matchedTag;
+							$replace[] = '';
+							continue;
+						}
+					}
+
+					// async loading
+					$async = -1;
+
+					// match file against async disabled list
+					if (!empty($async_disabledlist)) {
+						foreach ($async_disabledlist as $disabled_file_string) {
+							if (strpos($file,$disabled_file_string) !== false) {
+								$async = false;
+								break 1;
+							}
+						}
+					}
+
+					if ($async === -1 && $forceAsync) {
+						$async = true;
+					}
+
+					// match file against async force list
+					if ($async === -1 && !$forceAsync && !empty($asynclist)) {
+						foreach ($asynclist as $async_file_string) {
+							if (strpos($file,$async_file_string) !== false) {
+								$async = true;
+								break 1;
+							}
+						}
+					}
+
+					// async script tag
+					if ($async === -1) {
+						$async = (strpos($matchedTag,' async') !== false || strpos($matchedTag,' defer') !== false);
+					}
+
+					$handle = false;
+					$deps = false;
+
+					// check for dependencies
+					if ($wp_script_deps) {
+						foreach ($wp_script_deps as $script => $scriptdeps) {
+							if (strpos($file, $script) !== false) {
+
+								// found
+								$handle = $scriptdeps[0];
+								$deps = $scriptdeps[1];
+								break;
+							}
+						}
+					}
+
+					// decode file
+					$file = html_entity_decode($file,ENT_COMPAT,'utf-8');
+
+					// add file to style array to be processed
+					$optimized_scripts[] = array($file,$async,$handle,$deps);
+					
+					$search[] = $originalTag;
+					$replace[] = '';
+				}
+			}
+
+		} else {
+
+			/**
+			 * Filter Javascript files
+			 */
+			if ($this->CTRL->options['js_proxy']) {
+
+				$scripts = $this->extract_scripts($buffer);
+				if (!empty($scripts)) {
+
+					foreach ($scripts as $script) {
+
+						list($file,$matchedTag) = $script;
+						if (empty($file)) { continue 1; }
+
+						$originalFile = $file;
+						$originalTag = $matchedTag;
+
+						// apply filter for css file pre processing
+						$filterResult = apply_filters('abtf_jsfile_pre', $file);
+
+						// ignore file
+						if ($filterResult === 'ignore') {
+							continue;
+						}
+
+						// delete file
+						if ($filterResult === 'delete') {
+
+							// delete from HTML
+							$search[] = $matchedTag;
+							$replace[] = '';
+							continue;
+						}
+
+						// replace url
+						if ($filterResult && $filterResult !== $file) {
+							
+							// change file in original tag
+							$newTag = str_replace($originalFile,$filterResult,$originalTag);
+							
+							$search[] = $originalTag;
+							$replace[] = $newTag;
+						}
+					}
+				}
 			}
 		}
 
 		/**
-		 * Remove duplicate CSS files
+		 * CSS Delivery Optimization
 		 */
-		$reflog = array();
-		$styles = array();
-		foreach ($_styles as $link) {
-			$hash = md5($link[1]);
-			if (isset($reflog[$hash])) {
-				continue 1;
+		if ($this->optimize_css_delivery) {
+
+			/**
+			 * Remove full CSS and show critical CSS only
+			 */
+			if ($this->CTRL->view === 'abtf-critical-only') { // , 'abtf-buildtool-html'
+
+				// do not render the stylesheet files
+				$styles_json = 'false';
+
+			} else {
+
+				/**
+				 * Remove duplicate CSS files
+				 */
+				$reflog = array();
+				$styles = array();
+				if (isset($async_styles) && !empty($async_styles)) {
+					foreach ($async_styles as $link) {
+						if (isset($reflog[$link[1]])) {
+							continue 1;
+						}
+						$reflog[$link[1]] = 1;
+						$styles[] = $link;
+					}
+				}
+
+				if (defined('JSON_UNESCAPED_SLASHES')) {
+					$styles_json = json_encode($styles, JSON_UNESCAPED_SLASHES);
+				} else {
+					$styles_json = str_replace('\\/','/',json_encode($styles));
+				}
 			}
-			$reflog[$hash] = 1;
-			$styles[] = $link;
+		
+			/**
+			 * Update CSS JSON configuration
+			 */
+			$search[] = '"'.$this->criticalcss_replacement_string	.'"';
+			$replace[] = $styles_json;
 		}
 
-		$search[] = '#[\'|"]'.preg_quote($this->criticalcss_replacement_string).'[\'|"]#Ui';
-		// PHP 5.4+
-		if (defined('JSON_UNESCAPED_SLASHES')) {
-			$replace[] = json_encode($styles, JSON_UNESCAPED_SLASHES);
-		} else {
-			$replace[] = str_replace('\\/','/',json_encode($styles));
+		/**
+		 * Javascript Delivery Optimization
+		 */
+		if ($this->optimize_js_delivery) {
+
+			/**
+			 * Remove duplicate Javascript files
+			 */
+			$reflog = array();
+			$scripts = array();
+			if (isset($optimized_scripts) && !empty($optimized_scripts)) {
+				foreach ($optimized_scripts as $script) {
+					if (isset($reflog[$script[0]])) {
+						continue 1;
+					}
+					$reflog[$script[0]] = 1;
+					$scripts[] = $script;
+				}
+			}
+
+			$scripts_data = array($scripts);
+			if ($wp_script_deps === false) {
+				$scripts_data[] = false;
+			} else {
+				$scripts_data[] = $wp_script_depgroups;
+				$scripts_data[] = $wp_script_deprefs;
+			}
+
+			if (defined('JSON_UNESCAPED_SLASHES')) {
+				$scripts_json = json_encode($scripts_data, JSON_UNESCAPED_SLASHES);
+			} else {
+				$scripts_json = str_replace('\\/','/',json_encode($scripts_data));
+			}
+
+			/**
+			 * Update Javascript JSON configuration
+			 */
+			$search[] = '"'.$this->js_replacement_string	.'"';
+			$replace[] = $scripts_json;
 		}
 
-		$buffer = preg_replace($search,$replace,$buffer);
+		// apply search replace filter
+		$searchreplace = apply_filters('abtf_html_replace', array($search,$replace,$search_regex,$replace_regex));
+		if (is_array($searchreplace) && count($searchreplace) === 4) {
+			list($search,$replace,$search_regex,$replace_regex) = $searchreplace;
+		}
+
+		// update buffer
+		if (!empty($search)) {
+			$buffer = str_replace($search,$replace,$buffer);
+		}
+		if (!empty($search_regex)) {
+			$buffer = preg_replace($search_regex,$replace_regex,$buffer);
+		}
+
+		// apply HTML filters
+		$buffer = apply_filters('abtf_html', $buffer);
 
 		return $buffer;
 	}
 
 	/**
-	 * End CSS extract output buffer
-	 *
-	 * @since    1.0
-	 */
-	public function end_cssextract_buffering($HTML) {
-		if (is_feed() || is_admin()) {
-			return $buffer;
-		}
-		if ( stripos($HTML,"<html") === false || stripos($HTML,"<xsl:stylesheet") !== false ) {
-			// Not valid HTML
-			return $HTML;
-		}
-
-        $files = false;
-		if (isset($_REQUEST['files'])) {
-        	$files = explode(',',$_REQUEST['files']);
-        	if (!is_array($files) || empty($files)) {
-        		$files = false;
-        	}
-        }
-
-		$siteurl = get_option('siteurl');
-
-		/**
-		 * Load HTML into DOMDocument
-		 */
-		$DOM = new DOMDocument();
-		$DOM->preserveWhiteSpace = false;
-		@$DOM->loadHTML(mb_convert_encoding($HTML, 'HTML-ENTITIES', 'UTF-8'));
-
-		/**
-		 * Query stylesheets
-		 */
-		$xpath = new DOMXpath($DOM);
-		$stylesheets = $xpath->query('//link[not(self::script or self::noscript)]');
-
-		$csscode = array();
-
-		$cssfiles = array();
-		$reflog = array();
-
-		$remove = array();
-		foreach ($stylesheets as $sheet) {
-
-			$rel = $sheet->getAttribute('rel');
-			if (strtolower(trim($rel)) !== 'stylesheet') {
-				continue 1;
-			}
-			$src = $sheet->getAttribute('href');
-			$media = $sheet->getAttribute('media');
-
-			if($media) {
-				$medias = explode(',',$media);
-				$media = array();
-				foreach($medias as $elem) {
-					if (trim($elem) === '') { continue 1; }
-					$media[] = $elem;
-				}
-			} else {
-				// No media specified - applies to all
-				$media = array('all');
-			}
-
-			/**
-			 * Sheet file/url
-			 */
-			if($src) {
-
-				$url = $src;
-
-				// Strip query string
-				$src = current(explode('?',$src,2));
-
-				// URL decode
-				if (strpos($src,'%')!==false) {
-					$src = urldecode($src);
-				}
-
-				// Normalize URL
-				if (strpos($url,'//')===0) {
-					if (is_ssl()) {
-						$url = "https:".$url;
-					} else {
-						$url = "http:".$url;
-					}
-				} else if ((strpos($url,'//')===false) && (strpos($url,parse_url($siteurl,PHP_URL_HOST))===false)) {
-					$url = $siteurl.$url;
-				}
-
-				$hash = md5($url);
-				if (isset($reflog[$hash])) {
-					continue 1;
-				}
-				$reflog[$hash] = 1;
-
-				/**
-				 * External URL
-				 *
-				 */
-				if (@parse_url($url,PHP_URL_HOST)!==parse_url($siteurl,PHP_URL_HOST)) {
-
-					if ($this->curl === 'file_get_contents') {
-						$css = file_get_contents($url);
-					} else {
-						$css = $this->curl->get($url);
-					}
-					if (trim($css) === '') {
-						continue 1;
-					}
-
-					if ($files && !in_array(md5($url),$files)) {
-						continue 1;
-					}
-
-					$csscode[] = array($media,$css);
-
-				} else {
-					$path = (substr(ABSPATH,-1) === '/') ? substr(ABSPATH,0,-1) : ABSPATH;
-					$path .= preg_replace('|^(http(s)?:)?//[^/]+/|','/',$src);
-
-					$css = file_get_contents($path);
-
-					if ($files && !in_array(md5($url),$files)) {
-						continue 1;
-					}
-
-					$csscode[] = array($media,$css);
-				}
-
-				if (isset($_REQUEST['output']) && strtolower($_REQUEST['output']) === 'print') {
-
-					$cssfiles[] = array(
-						'src' => $url,
-						'code' => $css,
-						'media' => $media
-					);
-				}
-			}
-
-			// Remove script from DOM
-			$remove[] = $sheet;
-		}
-
-		/**
-		 * Query inline styles
-		 */
-		$inlinestyles = $xpath->query('//style[not(self::script or self::noscript)]');
-		foreach ($inlinestyles as $style) {
-
-			$media = $style->getAttribute('media');
-
-			if($media) {
-				$medias = explode(',',strtolower($media));
-				$media = array();
-				foreach($medias as $elem) {
-					if (trim($elem) === '') { continue 1; }
-					$media[] = $elem;
-				}
-			} else {
-				// No media specified - applies to all
-				$media = array('all');
-			}
-
-			$code = $style->nodeValue;
-
-			$hash = md5($code);
-			if (isset($reflog[$hash])) {
-				continue 1;
-			}
-			$reflog[$hash] = 1;
-
-			if (strpos($code,'! Above The Fold Optimization') !== false) {
-				continue 1;
-			}
-
-			$code = preg_replace('#.*<!\[CDATA\[(?:\s*\*/)?(.*)(?://|/\*)\s*?\]\]>.*#sm','$1',$code);
-
-			$xdoc = new DOMDocument();
-			$xdoc->appendChild($xdoc->importNode($style, true));
-			$inlinecode = $xdoc->saveHTML();
-
-			if ($files && !in_array(md5($inlinecode),$files)) {
-				continue 1;
-			}
-
-			$csscode[] = array($media,$code);
-
-            if (isset($_REQUEST['output']) && strtolower($_REQUEST['output']) === 'print') {
-
-				$cssfiles[] = array(
-					'src' => md5($code),
-					'inline' => true,
-					'code' => $inlinecode,
-					'inlinecode' => $code,
-					'media' => $media
-				);
-			}
-
-			// Remove script from DOM
-			$remove[] = $style;
-		}
-
-		/**
-		 * Print CSS for extraction by Critical CSS generator
-		 */
-		$inlineCSS = '';
-		foreach ($csscode as $code) {
-			if (in_array('all',$code[0]) || in_array('screen',$code[0])) {
-				$inlineCSS .= $code[1];
-			}
-		}
-
-		foreach($remove as $style) {
-			$style->parentNode->removeChild($style);
-		}
-
-		$output = 'EXTRACT-CSS-' . md5(SECURE_AUTH_KEY . AUTH_KEY);
-		$output .= "\n" . json_encode(array(
-			'css' => $inlineCSS,
-			'html' => $HTML
-		));
-
-		$url = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-
-		$parsed = array();
-		parse_str(substr($url, strpos($url, '?') + 1), $parsed);
-		$extractkey = $parsed['extract-css'];
-		unset($parsed['extract-css']);
-		unset($parsed['output']);
-		$url = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'].'/';
-		if(!empty($parsed))
-		{
-			$url .= '?' . http_build_query($parsed);
-		}
-
-		if (isset($_REQUEST['output']) && (
-			strtolower($_REQUEST['output']) === 'css'
-			|| strtolower($_REQUEST['output']) === 'download'
-		)) {
-
-			if (strtolower($_REQUEST['output']) === 'download') {
-				header('Content-type: text/css');
-				header('Content-disposition: attachment; filename="full-css-'.$extractkey.'.css"');
-			}
-
-			return $inlineCSS;
-
-		} else if (isset($_REQUEST['output']) && strtolower($_REQUEST['output']) === 'print') {
-
-function human_filesize($bytes, $decimals = 2) {
-    $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
-    $factor = floor((strlen($bytes) - 1) / 3);
-    return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
-}
-
-			require_once(plugin_dir_path( realpath(dirname( __FILE__ ) . '/') ) . 'includes/extract-full-css.inc.php');
-
-			return $cssoutput;
-		}
-
-		return $output;
-	}
-
-	/**
 	 * WordPress Header hook
-	 *
-	 * Parse and modify WordPress header. This part includes inline Javascript and CSS and controls the renderproces.,
-	 *
-	 * @since    1.0
 	 */
     public function header() {
-		if ($this->CTRL->noop) { return; }
 
-		if ($this->buffertype === 'ob') {
-			ob_start(array($this,'rewrite_callback'));
+		if ($this->CTRL->disabled) { return; }
+
+		/**
+		 * Add noindex meta to prevent indexing in Google
+		 */
+		if ($this->CTRL->view) {
+			print '<meta name="robots" content="noindex, nofollow" />';
 		}
 
-		$cssfile = $this->CTRL->cache_path() . 'inline.min.css';
+		// debug enabled?
+		$debug = (current_user_can('administrator') && intval($this->CTRL->options['debug']) === 1) ? true : false;
 
+		// Inline js
+		$inlineJS = '';
+
+		/**
+		 * Load Critical CSS
+		 */
+		$inlineCSS = $this->CTRL->criticalcss->get();
+
+		// javascript debug extension
+		$jsdebug = ($debug) ? '.debug' : '';
+
+		/**
+		 * Inline settings JSON
+		 */
+		$jssettings = array();
+		
+		/**
+		 * Javascript client files to combine
+		 */
 		$jsfiles = array();
 
-		$jsfiles[] = plugin_dir_path( dirname( __FILE__ ) ) . 'public/js/abovethefold.min.js';
+		/**
+		 * Google Web Font Loader Inline
+		 */
+		if ($this->CTRL->options['gwfo']) {
 
-		if (intval($this->CTRL->options['loadcss_enhanced']) === 1) {
-			$jsfiles[] = plugin_dir_path( dirname( __FILE__ ) ) . 'public/js/abovethefold-loadcss-enhanced.min.js';
-		} else {
-			$jsfiles[] = plugin_dir_path( dirname( __FILE__ ) ) . 'public/js/abovethefold-loadcss.min.js';
+			// get web font loader client
+			$this->CTRL->gwfo->client_jssettings($jssettings, $jsfiles, $inlineJS, $jsdebug);
+
 		}
 
-		$jscode = '';
+		/** main client controller */
+		$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold'.$jsdebug.'.min.js';
+
+		// Proxy external files
+		if ($this->CTRL->options['js_proxy'] || $this->CTRL->options['css_proxy']) {
+
+			// get proxy client
+			$this->CTRL->proxy->client_jssettings($jssettings, $jsfiles, $jsdebug);
+		}
+
+		/**
+		 * Javascript delivery optimization
+		 */
+		if ($this->optimize_js_delivery) {
+
+			// jQuery ready stub
+			if (isset($this->CTRL->options['jsdelivery_jquery']) && $this->CTRL->options['jsdelivery_jquery']) {
+
+				$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-jquery-stub'.$jsdebug.'.min.js';
+			}
+
+			$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-js'.$jsdebug.'.min.js';
+
+			// script loader
+			if (isset($this->CTRL->options['jsdelivery_scriptloader']) && $this->CTRL->options['jsdelivery_scriptloader'] !== 'little-loader') {
+
+				// proxy is required for HTML5 script loader
+				if ($this->CTRL->options['jsdelivery_scriptloader'] === 'html5' && $this->CTRL->options['js_proxy']) {
+
+					$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-js-localstorage'.$jsdebug.'.min.js';
+				}
+			}
+		}
+
+		/**
+		 * CSS delivery optimization
+		 */
+		if ($this->optimize_css_delivery) {
+
+			$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-css'.$jsdebug.'.min.js';
+
+			/** Async CSS controller */
+			if (intval($this->CTRL->options['loadcss_enhanced']) === 1) {
+				$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-loadcss-enhanced'.$jsdebug.'.min.js';
+			} else {
+				
+
+				$jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-loadcss'.$jsdebug.'.min.js';
+			}
+		}
+
+		/**
+		 * Combine javascript files into inline code
+		 */
 		foreach ($jsfiles as $file) {
-			$jscode .= ' ' . file_get_contents($file);
+			if (!file_exists($file)) { continue 1; }
+			$js = trim(file_get_contents($file));
+			if (substr($js,-1) !== ';') {
+				$js .= ' ';
+			}
+			$inlineJS .= $js;
 		}
 
-		$jssettings = array(
-			'css' => $this->criticalcss_replacement_string
-		);
+		/**
+		 * Optimize Javascript delivery
+		 */
+		if ($this->optimize_js_delivery) {
 
-		if (isset($this->CTRL->options['cssdelivery_renderdelay']) && intval($this->CTRL->options['cssdelivery_renderdelay']) > 0) {
-			$jssettings['delay'] = intval($this->CTRL->options['cssdelivery_renderdelay']);
+			$jssettings['js'] = array($this->js_replacement_string,($this->CTRL->options['jsdelivery_position'] === 'footer') ? true : false);
+		} else {
+
+			// do not load CSS
+			$headJS = false;
 		}
 
-?>
-<style type="text/css">
-/*! Above The Fold Optimization <?php print $this->CTRL->get_version(); ?> */
-<?php if (file_exists($cssfile)) { print file_get_contents($cssfile); } ?></style>
-<script type="text/javascript" id="atfcss"><?php print $jscode; ?>
-<?php if (current_user_can( 'manage_options' ) && intval($this->CTRL->options['debug']) === 1) { print 'window.abovethefold.debug = true;'; }
-if (!empty($jssettings)) {
-	print "window['abovethefold'].config(".json_encode($jssettings).");";
-}
-if ($this->CTRL->options['cssdelivery_position'] === 'header') {
-	print "window['abovethefold'].css();";
-}
-?>
-</script>
-<?php //
+		/**
+		 * Optimize CSS delivery
+		 */
+		if ($this->optimize_css_delivery) {
+
+			$jssettings['css'] = $this->criticalcss_replacement_string;
+
+			if (isset($this->CTRL->options['cssdelivery_renderdelay']) && intval($this->CTRL->options['cssdelivery_renderdelay']) > 0) {
+				$jssettings['delay'] = intval($this->CTRL->options['cssdelivery_renderdelay']);
+			}
+
+			$headCSS = ($this->CTRL->options['cssdelivery_position'] === 'header') ? true : false;
+		} else {
+
+			// do not load CSS
+			$headCSS = false;
+		}
+
+		// Hide PageSpeed.pro reference in browser console
+		if (defined('ABTF_NOREF') || current_user_can('manage_options')) {
+			$jssettings['noref'] = true;
+		}
+
+		$inlineJS .= 'Abtf.h(' . json_encode($jssettings) . ');';
+		print '<script rel="abtf">' . $inlineJS . '</script>';
+
+		print '<style type="text/css" rel="abtf" id="AbtfCSS">' . $inlineCSS . '</style>';
+
+		/**
+		 * Start async loading of CSS
+		 */
+		if ($this->optimize_css_delivery && $headCSS) {
+			print '<script rel="abtf">Abtf.css();</script>';
+		}
+
 	}
 
 	/**
 	 * WordPress Footer hook
-	 *
-	 * Parse and modify WordPress footer.
-	 *
-	 * @since    1.0
 	 */
 	public function footer() {
-		if ($this->OPTIMIZE->noop) { return; }
+		if ($this->CTRL->disabled) { return; }
 
-		if (empty($this->CTRL->options['cssdelivery_position']) || $this->CTRL->options['cssdelivery_position'] === 'footer') {
-        	print "<script type=\"text/javascript\">if (window['abovethefold']) { window['abovethefold'].css(); }</script>";
-        }
+		// CSS delivery in footer
+		$footCSS = ($this->optimize_css_delivery && (empty($this->CTRL->options['cssdelivery_position']) || $this->CTRL->options['cssdelivery_position'] === 'footer')) ? true : false;
+
+		if (
+
+			$footCSS
+
+			// javascript in footer
+			|| ($this->CTRL->options['jsdelivery'] && $this->CTRL->options['jsdelivery_position'] === 'footer')
+
+			// google web font loader in footer
+			|| ($this->CTRL->options['gwfo'] && $this->CTRL->options['gwfo_loadposition'] === 'footer')
+
+		) {
+
+			// start loading CSS from footer position
+			
+			print "<script rel=\"abtf\">Abtf.f(".json_encode($footCSS).");</script>";
+		}
 
 	}
 
-	/**
-	 * Skip autoptimize CSS
-	 */
-	public function autoptimize_skip_css($excludeCSS) {
-		$excludeCSS .= ',! Above The Fold Optimization,';
-		return $excludeCSS;
-	}
-
-	/**
-	 * Skip autoptimize Javascript
-	 */
-	public function autoptimize_skip_js($excludeJS) {
-		$excludeJS .= ',abovethefold\'].css(),' . $this->criticalcss_replacement_string;
-
-		if ($this->CTRL->options['gwfo']) {
-			$excludeJS .= ',WebFontConfig';
-		}
-
-		return $excludeJS;
-	}
-
-	/**
-	 * Extract Google fonts from CSS
-	 */
-	public function extract_google_fonts($css) {
-
-		$googlefonts = array();
-
-		if (preg_match_all('#(?:@import)(?:\\s)(?:url)?(?:(?:(?:\\()(["\'])?(?:[^"\')]+)\\1(?:\\))|(["\'])(?:.+)\\2)(?:[A-Z\\s])*)+(?:;)#Ui',$css,$out) && !empty($out[0])) {
-
-			foreach ($out[0] as $n => $fontLink) {
-				if (substr_count($fontLink, "fonts.googleapis.com/css") > 0) {
-					$fontLink = preg_replace('|^.*(//fonts\.[^\s\'\"\)]+)[\s\|\'\|\"\|\)].*|is','$1',$fontLink);
-					$googlefonts[] = $fontLink;
-				}
-			}
-
-			if (!empty($googlefonts)) {
-
-				$fonts = '';
-				foreach ($googlefonts as $font) {
-					$fonts .= '<link rel="stylesheet" type="text/css" href="'.htmlentities($font).'" />';
-				}
-
-				$html = '<html><head><title>Fonts 2</title>'.$fonts.'</head><body></body></html>';
-				$fonts = GWFO::googlefonts_find_google_fonts($html);
-
-				return $fonts;
-
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Autoptimize: process CSS (@imports of Google fonts etc.)
-	 */
-	 public function autoptimize_process_css($css) {
-
-	 	if ($this->CTRL->options['gwfo']) {
-
-			/**
-			 * Parse fonts with Google Webfont Optimizer function
-			 */
-			$fonts = $this->extract_google_fonts($css);
-
-			$GWFOQUE = get_option('abovethefold_gwfo_que');
-
-			if (empty($GWFOQUE)) {
-				$GWFOQUE = array();
-			}
-
-			if (!empty($fonts)) {
-				$GWFOQUE[] = $fonts;
-				$css = preg_replace('#(?:@import)(?:\\s)(?:url)?(?:(?:(?:\\()(["\'])?(?:[^"\')]+)\\1(?:\\))|(["\'])(?:.+)\\2)(?:[A-Z\\s])*)+(?:;)#Ui','',$css);
-			}
-
-			$GWFOQUE = array_unique($GWFOQUE);
-			update_option('abovethefold_gwfo_que',$GWFOQUE);
-		}
-
-		return $css;
-
-	 }
-
-
-	/**
-	 * Autoptimize: process Javascript
-	 */
-	 public function autoptimize_process_js($js) {
-
-		/**
-		 * Localize Javascript
-		 */
-		if ($this->CTRL->options['localizejs_enabled']) {
-			$js = $this->CTRL->localizejs->parse_js($js);
-		}
-
-		return $js;
-
-	 }
-
-	/**
-	 * Autoptimize: process HTML
-	 */
-	public function autoptimize_process_html($html) {
-
-		/**
-		 * Include @import of Google Fonts in optimized delivery via the plugin Google Webfont Optimizer
-		 */
-		if ($this->CTRL->options['gwfo']) {
-
-			$GWFOQUE = get_option('abovethefold_gwfo_que');
-
-			if (!empty($GWFOQUE)) {
-
-				if (preg_match('|WebFontConfig = \{[^<]+families: (\[[^\]]+\])|is',$html,$out)) {
-
-					$json = $out[1];
-					$newJSON = '';
-
-					$jsonLength = strlen($out[1]);
-					for ($i = 0; $i < $jsonLength; $i++) {
-						if ($json[$i] == '"' || $json[$i] == "'") {
-							$nextQuote = strpos($json, $json[$i], $i + 1);
-							$quoteContent = substr($json, $i + 1, $nextQuote - $i - 1);
-							$newJSON .= '"' . str_replace('"', "'", $quoteContent) . '"';
-							$i = $nextQuote;
-						} else {
-							$newJSON .= $json[$i];
-						}
-					}
-
-					$json = json_decode($newJSON,true);
-
-					$newJSON = array_unique($json);
-
-					if (!is_array($json)) {
-						$json = array();
-					}
-				}
-
-				foreach ($GWFOQUE as $qn => $data) {
-					foreach ($data['google'] as $font) {
-						$json[] = $font;
-					}
-				}
-
-				$html = preg_replace('|(WebFontConfig = \{[^<]+families: )(\[[^\]]+\])|is','$1' . json_encode($json),$html);
-			}
-		}
-
-		/**
-		 * Old localizejs enabled setting conversion
-		 *
-		 * @since 2.3.5
-		 */
-		if (!isset($this->CTRL->options['localizejs_enabled']) && isset($this->CTRL->options['localizejs']) && intval($this->CTRL->options['localizejs']['enabled']) === 1) {
-			$this->CTRL->options['localizejs_enabled'] = 1;
-		}
-
-		/**
-		 * Localize Javascript
-		 */
-		if ($this->CTRL->options['localizejs_enabled']) {
-			$html = $this->CTRL->localizejs->parse_html($html);
-		}
-
-		return $html;
-	}
 
 }

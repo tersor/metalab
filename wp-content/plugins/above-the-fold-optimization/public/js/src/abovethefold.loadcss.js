@@ -5,21 +5,25 @@
  *
  * @package    abovethefold
  * @subpackage abovethefold/public
- * @author     Optimalisatie.nl <info@optimalisatie.nl>
+ * @author     PageSpeed.pro <info@pagespeed.pro>
  */
 
-window['abovethefold'].loadCSS = (typeof loadCSS !== 'undefined') ? function( href, before, media, callback ) {
+(function(window, Abtf) {
+    
+    window['Abtf'].loadCSS = (typeof loadCSS !== 'undefined') ? function( href, before, media, callback ) {
 
-    if (window['abovethefold'].debug) {
-        console.info('abovethefold.css() > loadCSS() async download start', href);
-    }
-    loadCSS( href, before, media, function() {
-        if (window['abovethefold'].debug) {
-            console.info('abovethefold.css() > loadCSS() render', href);
+        if (ABTFDEBUG) {
+            console.info('Abtf.css() ➤ loadCSS() async download start', Abtf.localUrl(href));
         }
-        if (callback) {
-            callback();
-        }
-    } );
+        loadCSS( href, before, media, function() {
+            if (ABTFDEBUG) {
+                console.info('Abtf.css() ➤ loadCSS() render', Abtf.localUrl(href));
+            }
+            if (callback) {
+                callback();
+            }
+        } );
 
-} : function() {};
+    } : function() {};
+
+})(window, window['Abtf']);
