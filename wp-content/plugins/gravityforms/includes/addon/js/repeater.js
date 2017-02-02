@@ -94,6 +94,8 @@ jQuery.fn.repeater = function( options ) {
         if( ! self._template )
             self._template = self.elem.html();
 
+        self._template = jQuery.trim( self._template );
+
     }
 
     self.addItem = function( item, index ) {
@@ -101,12 +103,12 @@ jQuery.fn.repeater = function( options ) {
         var itemMarkup = self.getItemMarkup( item, index),
             itemElem = jQuery( itemMarkup ).addClass( 'item-' + index );
 
-        self.callbacks.beforeAdd( self, itemElem, item );
+        self.callbacks.beforeAdd( self, itemElem, item, index );
 
         self.append( itemElem );
         self.populateSelects( item, index );
 
-        self.callbacks.add( self, itemElem, item );
+        self.callbacks.add( self, itemElem, item, index );
 
     }
 
@@ -152,19 +154,24 @@ jQuery.fn.repeater = function( options ) {
     self.populateSelects = function( item, index ) {
 
         // after appending the row, check each property to see if it is a select and then populate
-        for( var property in item ) {
+        for ( var property in item ) {
 
-            if( ! item.hasOwnProperty( property ) )
+            if ( ! item.hasOwnProperty( property ) ) {
                 continue;
+			}
 
             var input = self.elem.find( '.' + property + '_' + index );
-            if( input.is( 'select' ) ){
-                if(jQuery.isArray(item[property])){
-                    input.val(item[property]);
-                } else {
-                    input.find( 'option[value="' + item[property] + '"]' ).prop( 'selected', true );
-                }
+
+            if ( ! input.is( 'select' ) ) {
+	            continue;
             }
+            
+            if ( jQuery.isArray( item[ property ] ) ) {
+                input.val( item[ property ] );
+            } else {
+                input.find( 'option[value="' + item[ property ] + '"]' ).prop( 'selected', true );
+            }
+            
         }
 
     }
