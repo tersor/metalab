@@ -82,6 +82,17 @@ class RestApi{
 $RestApi = new RestApi();
 
 
+if (!function_exists('getallheaders')) { 
+  function getallheaders() { 
+    $headers = ''; 
+    foreach ($_SERVER as $name => $value) { 
+      if (substr($name, 0, 5) == 'HTTP_') { 
+        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value; 
+      } 
+    } 
+    return $headers; 
+  } 
+} 
 if(!function_exists('_log')){
   function _log( $message ) {
     if( WP_DEBUG === true ){
