@@ -65,7 +65,7 @@ class RestApi{
   function checkRequestHeaders(){
     $headers = getallheaders();
 
-    $is_header = ( isset($headers['ACCESS_KEY']) && $headers['ACCESS_KEY'] == getenv('REMOTE_ADDR') ) ? true : false;
+    $is_header = ( isset($headers['ACCESS_KEY']) && $headers['ACCESS_KEY'] == getenv('ACCESS_KEY') ) ? true : false;
     $is_dev = ( $_SERVER['SERVER_NAME'] == 'sites' or $_SERVER['SERVER_NAME'] == 'localhost' ) ? true : false;
     if ( $is_header or $is_dev ){
       return true;
