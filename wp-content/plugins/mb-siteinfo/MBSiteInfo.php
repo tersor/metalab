@@ -78,10 +78,11 @@
 
       if ( is_array($this->Themes) ){
         foreach ($this->Themes as $slug => $Theme) {
-          // _log($slug);
+          //_log($Theme);
           $this->Export['themes'][] =
             array(
               'name' => $Theme->get('Name'),
+              'slug' => $Theme->get('TextDomain'),
               'active' =>  ( $this->CurrentTheme->get('Name') == $Theme->get('Name') ) ? true : false,
               'update' => $this->hasUpdate($slug, $this->ThemeUpdates),
               'version' => $Theme->get('Version')
@@ -141,6 +142,7 @@
         $this->Export['plugins'][] =
           array(
             'name' => $plugin['Name'],
+            'slug' => $plugin['TextDomain'],
             'active' => ( is_plugin_active($slug) ) ? true : false,
             'update' => $this->hasUpdate($slug, $this->PluginUpdates),
             'version' => $plugin['Version']
