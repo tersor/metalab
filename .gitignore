@@ -12,4 +12,5 @@ wp-content/debug.log
 wordpress.thor
 wp-config.php
 wp-content/cache/
-wp-content/object-cache.phpwp-content/plugins/mb-siteinfo
+wp-content/object-cache.php
+wp-content/plugins/mb-siteinfo
