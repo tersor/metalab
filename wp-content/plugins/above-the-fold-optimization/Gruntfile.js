@@ -1,239 +1,435 @@
 /* global module:false */
 module.exports = function(grunt) {
 
-	// Project configuration
-	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
-		meta: {
-			banner: '/*! Above the fold Optimization v<%= pkg.version %> */'
-		},
+    var merge = require('merge'); // merge objects
 
-		uglify: {
-			options: {
-				banner: ''
-			},
+    // config index
+    var CONFIG_INDEX = {};
+    var json_config_index = grunt.file.readJSON('public/js/src/config-index.json');
+    var len = json_config_index.length;
+    for (var i = 0; i < len; i++) {
+        if (typeof json_config_index[i] === 'string') {
+            CONFIG_INDEX['CONFIG.' + json_config_index[i].toUpperCase()] = i;
+        } else {
+            var key = Object.keys(json_config_index[i])[0];
+            CONFIG_INDEX['CONFIG.' + key.toUpperCase()] = i;
+            var sl = json_config_index[i][key].length;
+            for (var si = 0; si < sl; si++) {
 
-			build: {
-				options: {
-					compress: {
-						global_defs: {
-							"ABTFDEBUG": false
-						}
-					}
-				},
-				files: {
+                if (typeof json_config_index[i][key][si] === 'string') {
+                    CONFIG_INDEX['CONFIG.' + key.toUpperCase() + '_' + json_config_index[i][key][si].toUpperCase()] = si;
+                } else {
+                    var _key = Object.keys(json_config_index[i][key][si])[0];
+                    CONFIG_INDEX['CONFIG.' + key.toUpperCase() + '_' + _key.toUpperCase()] = si;
+                    var _sl = json_config_index[i][key][si][_key].length;
+                    for (var _si = 0; _si < _sl; _si++) {
+                        CONFIG_INDEX['CONFIG.' + key.toUpperCase() + '_' + _key.toUpperCase() + '_' + json_config_index[i][key][si][_key][_si].toUpperCase()] = _si;
+                    }
+                }
 
-					// Above The Fold Javascript Controller
-					'public/js/abovethefold.min.js' : [
-						'public/js/src/abovethefold.js'
-					],
+            }
+        }
+    }
 
-					// Proxy
-					'public/js/abovethefold-proxy.min.js' : [
-						'public/js/src/abovethefold.proxy.js'
-					],
+    // closure compiler
+    var CC = {}
+    var CCfiles = {
+        'public/js/abovethefold.min.js': 'public/js/min/abovethefold.js',
+        'public/js/abovethefold-proxy.min.js': 'public/js/min/abovethefold-proxy.js',
+        'public/js/abovethefold-jquery-stub.min.js': 'public/js/min/abovethefold-jquery-stub.js',
+        'public/js/abovethefold-js-localstorage.min.js': 'public/js/min/abovethefold-js-localstorage.js',
+        'public/js/abovethefold-js.min.js': 'public/js/min/abovethefold-js.js',
+        'public/js/abovethefold-pwa-unregister.min.js': 'public/js/min/abovethefold-pwa-unregister.js',
+        'public/js/abovethefold-css.min.js': 'public/js/min/abovethefold-css.js',
+        'public/js/abovethefold-loadcss-enhanced.min.js': 'public/js/min/abovethefold-loadcss-enhanced.js',
+        'public/js/abovethefold-loadcss.min.js': 'public/js/min/abovethefold-loadcss.js',
+        'public/js/abovethefold-pwa.min.js': 'public/js/min/abovethefold-pwa.js',
+        'public/js/pwa-serviceworker.js': 'public/js/min/pwa.serviceworker.js'
+    };
 
-					// jQuery Stub
-					'public/js/abovethefold-jquery-stub.min.js' : [
-						'public/js/src/abovethefold.jquery-stub.js'
-					],
+    var srcfile;
+    for (var file in CCfiles) {
+        if (!CCfiles.hasOwnProperty(file)) {
+            continue;
+        }
 
-					// Javascript optimization
-					'public/js/abovethefold-js.min.js' : [
-						'public/js/src/abovethefold.js.js',
-						'public/js/src/abovethefold.loadscript.js'
-					],
+        CC[file] = {
+            closurePath: '../closure-compiler',
+            js: CCfiles[file],
+            jsOutputFile: file,
+            //reportFile: 'public/js/closure-compiler/reports/pagespeed+' + keys.join('+') + '.txt',
+            noreport: true,
+            maxBuffer: 500,
+            options: {
+                compilation_level: 'ADVANCED_OPTIMIZATIONS',
+                language_in: 'ECMASCRIPT5_STRICT',
+                externs: ['public/js/closure-compiler/abtf-externs.js']
+            }
+        };
 
-					// Javascript localstorage script loader
-					'public/js/abovethefold-js-localstorage.min.js' : [
-						'public/js/src/abovethefold.loadscript-localstorage.js'
-					],
+        // debug
+        srcfile = CCfiles[file].replace('.js', '.debug.js');
 
-					// Javascript cached script loader
-					/*'public/js/abovethefold-js-cached.min.js' : [
-						'public/js/src/abovethefold.loadscript-cached.js'
-					],*/
+        if (file.indexOf('pwa-serviceworker') !== -1) {
+            file = file.replace('.js', '.debug.js');
+        } else {
+            file = file.replace('.min.js', '.debug.min.js');
+        }
 
-					// CSS optimization
-					'public/js/abovethefold-css.min.js' : [
-						'public/js/src/abovethefold.css.js'
-					],
 
-					// Enhanced loadCSS
-					'public/js/abovethefold-loadcss-enhanced.min.js' : [
-						'public/js/src/abovethefold.loadcss-modified.js'
-					],
+        CC[file] = {
+            closurePath: '../closure-compiler',
+            js: srcfile,
+            jsOutputFile: file,
+            //reportFile: 'public/js/closure-compiler/reports/pagespeed+' + keys.join('+') + '.txt',
+            noreport: true,
+            maxBuffer: 500,
+            options: {
+                compilation_level: 'ADVANCED_OPTIMIZATIONS',
+                language_in: 'ECMASCRIPT5_STRICT',
+                externs: ['public/js/closure-compiler/abtf-externs.js']
+            }
+        };
+    }
 
-					// Original loadCSS
-					'public/js/abovethefold-loadcss.min.js' : [
-						'bower_components/loadcss/src/loadCSS.js',
-						'public/js/src/abovethefold.loadcss.js'
-					],
+    // Project configuration
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        meta: {
+            banner: '/*! Above The Fold Optimization v<%= pkg.version %> */'
+        },
 
-					// Compare Critical CSS view
-					'public/js/compare.min.js' : [
-						'public/js/src/compare.js'
-					],
+        'closure-compiler': CC,
 
-					// Extract full CSS view
-					'public/js/extractfull.min.js' : [
-						'node_modules/jquery/dist/jquery.min.js',
-						'public/js/src/extractfull.js'
-					],
+        uglify: {
+            options: {
+                banner: ''
+            },
 
-					// jQuery LazyLoad XT core
-					'public/js/jquery.lazyloadxt.min.js' : [
-						'node_modules/lazyloadxt/dist/jquery.lazyloadxt.min.js'
-					],
+            build: {
+                options: {
+                    compress: {
+                        global_defs: merge({
+                            "ABTFDEBUG": false
+                        }, CONFIG_INDEX)
+                    }
+                },
+                files: {
 
-					// jQuery LazyLoad XT widget module
-					'public/js/jquery.lazyloadxt.widget.min.js' : [
-						'node_modules/lazyloadxt/dist/jquery.lazyloadxt.widget.min.js'
-					],
+                    // Above The Fold Javascript Controller
+                    'public/js/min/abovethefold.js': [
+                        'public/js/src/abovethefold.js'
+                    ],
 
-					// Original loadCSS
-					'admin/js/admincp.min.js' : [
-						'admin/js/jquery.debounce.js',
-						'admin/js/admincp.js',
-						'admin/js/admincp.build-tool.js',
-						'admin/js/admincp.add-conditional.js',
-						'admin/js/admincp.criticalcss-editor.js',
-						'bower_components/selectize/dist/js/standalone/selectize.min.js'
-					],
+                    // Proxy
+                    'public/js/min/abovethefold-proxy.js': [
+                        'public/js/src/abovethefold.proxy.js'
+                    ],
 
-					// Codemirror
-					'admin/js/codemirror.min.js' : [
-						'bower_components/codemirror/lib/codemirror.js',
-						'bower_components/codemirror/mode/css/css.js',
-						'admin/js/csslint.js',
-						'bower_components/codemirror/addon/lint/lint.js',
-						'bower_components/codemirror/addon/lint/css-lint.js'
-					],
+                    // jQuery Stub
+                    'public/js/min/abovethefold-jquery-stub.js': [
+                        'public/js/src/abovethefold.jquery-stub.js'
+                    ],
 
-					// Extract full CSS view
-					'public/js/webfont.js' : [
-						'node_modules/webfontloader/webfontloader.js',
-					]
-				}
-			},
+                    // Javascript optimization
+                    'public/js/min/abovethefold-js.js': [
+                        'public/js/src/abovethefold.js.js',
+                        'public/js/src/abovethefold.loadscript.js'
+                    ],
 
-			// build debug client
-			build_debug: {
-				options: {
-					compress: {
-						global_defs: {
-							"ABTFDEBUG": true
-						}
-					}
-				},
-				files: {
+                    // Javascript localstorage script loader
+                    'public/js/min/abovethefold-js-localstorage.js': [
+                        'public/js/src/abovethefold.loadscript-localstorage.js'
+                    ],
 
-					// Above The Fold Javascript Controller
-					'public/js/abovethefold.debug.min.js' : [
-						'public/js/src/abovethefold.js'
-					],
+                    // CSS optimization
+                    'public/js/min/abovethefold-css.js': [
+                        'public/js/src/abovethefold.css.js'
+                    ],
 
-					// Proxy
-					'public/js/abovethefold-proxy.debug.min.js' : [
-						'public/js/src/abovethefold.proxy.js'
-					],
+                    // Enhanced loadCSS
+                    'public/js/min/abovethefold-loadcss-enhanced.js': [
+                        'public/js/src/abovethefold.loadcss-modified.js'
+                    ],
 
-					// Javascript optimization
-					'public/js/abovethefold-js.debug.min.js' : [
-						'public/js/src/abovethefold.js.js',
-						'public/js/src/abovethefold.loadscript.js'
-					],
+                    // Original loadCSS
+                    'public/js/min/abovethefold-loadcss.js': [
+                        'bower_components/loadcss/src/loadCSS.js',
+                        'public/js/src/abovethefold.loadcss.js'
+                    ],
 
-					// Javascript localstorage script loader
-					'public/js/abovethefold-js-localstorage.debug.min.js' : [
-						'public/js/src/abovethefold.loadscript-localstorage.js'
-					],
+                    // Compare Critical CSS view
+                    'public/js/compare.min.js': [
+                        'public/js/src/compare.js'
+                    ],
 
-					// Javascript cached script loader
-					/*'public/js/abovethefold-js-cached.debug.min.js' : [
-						'public/js/src/promise-polyfill.js',
-						'public/js/src/async-local-storage.js',
-						'public/js/src/abovethefold.loadscript-cached.js'
-					],*/
-					
-					// jQuery Stub
-					'public/js/abovethefold-jquery-stub.debug.min.js' : [
-						'public/js/src/abovethefold.jquery-stub.js'
-					],
+                    // Extract full CSS view
+                    'public/js/extractfull.min.js': [
+                        'node_modules/jquery/dist/jquery.min.js',
+                        'public/js/src/extractfull.js'
+                    ],
 
-					// CSS optimization
-					'public/js/abovethefold-css.debug.min.js' : [
-						'public/js/src/abovethefold.css.js'
-					],
+                    // jQuery LazyLoad XT core
+                    'public/js/jquery.lazyloadxt.min.js': [
+                        'node_modules/lazyloadxt/dist/jquery.lazyloadxt.min.js'
+                    ],
 
-					// Enhanced loadCSS
-					'public/js/abovethefold-loadcss-enhanced.debug.min.js' : [
-						'public/js/src/abovethefold.loadcss-modified.js'
-					],
+                    // jQuery LazyLoad XT widget module
+                    'public/js/jquery.lazyloadxt.widget.min.js': [
+                        'node_modules/lazyloadxt/dist/jquery.lazyloadxt.widget.min.js'
+                    ],
 
-					// Original loadCSS
-					'public/js/abovethefold-loadcss.debug.min.js' : [
-						'bower_components/loadcss/src/loadCSS.js',
-						'public/js/src/abovethefold.loadcss.js'
-					]
+                    // Extract full CSS view
+                    'public/js/webfont.js': [
+                        'node_modules/webfontloader/webfontloader.js',
+                    ]
+                }
+            },
 
-				}
-			}
-		},
+            // build debug client
+            build_debug: {
+                options: {
+                    compress: {
+                        global_defs: merge({
+                            "ABTFDEBUG": true
+                        }, CONFIG_INDEX)
+                    }
+                },
+                files: {
 
-		cssmin: {
+                    // Above The Fold Javascript Controller
+                    'public/js/min/abovethefold.debug.js': [
+                        'public/js/src/abovethefold.js'
+                    ],
 
-			admincp: {
-				options: {
-					banner: '',
-					advanced: true,
-					aggressiveMerging: true,
-					processImport: true
-				},
-				files: {
-					'admin/css/admincp.min.css': [
-						'admin/css/admincp.css',
-						'admin/css/admincp-criticalcss.css',
-						'admin/css/admincp-mobile.css',
-						'bower_components/selectize/dist/css/selectize.default.css'
-					],
-					'admin/css/codemirror.min.css': [
-						'bower_components/codemirror/lib/codemirror.css',
-						'bower_components/codemirror/addon/lint/lint.css'
-					],
-					'public/css/compare.min.css': [
-						'public/css/src/compare.css'
-					],
-					'public/css/extractfull.min.css': [
-						'public/css/src/extractfull.css'
-					]
-				}
-			}
-		},
+                    // Proxy
+                    'public/js/min/abovethefold-proxy.debug.js': [
+                        'public/js/src/abovethefold.proxy.js'
+                    ],
 
-		/**
-		 * Copy files
-		 */
-		copy: {
-		  webfont_package: {
-	      	src: 'node_modules/webfontloader/package.json',
-	      	dest: 'public/js/src/webfontjs_package.json'
-		  },
-		  jquery_lazyxt_package: {
-	      	src: 'node_modules/lazyloadxt/package.json',
-	      	dest: 'public/js/src/lazyloadxt_package.json'
-		  },
-		  loadcss_package: {
-		  	src: 'bower_components/loadcss/package.json',
-	      	dest: 'public/js/src/loadcss_package.json'
-		  }
-		}
-	});
+                    // Javascript optimization
+                    'public/js/min/abovethefold-js.debug.js': [
+                        'public/js/src/abovethefold.js.js',
+                        'public/js/src/abovethefold.loadscript.js'
+                    ],
 
-	// Load Dependencies
-	require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+                    // Javascript localstorage script loader
+                    'public/js/min/abovethefold-js-localstorage.debug.js': [
+                        'public/js/src/abovethefold.loadscript-localstorage.js'
+                    ],
 
-	grunt.registerTask( 'build', [ 'uglify', 'cssmin', 'copy' ] );
+                    // jQuery Stub
+                    'public/js/min/abovethefold-jquery-stub.debug.js': [
+                        'public/js/src/abovethefold.jquery-stub.js'
+                    ],
 
-	grunt.registerTask( 'default', [ 'uglify', 'cssmin' ] );
+                    // CSS optimization
+                    'public/js/min/abovethefold-css.debug.js': [
+                        'public/js/src/abovethefold.css.js'
+                    ],
+
+                    // Enhanced loadCSS
+                    'public/js/min/abovethefold-loadcss-enhanced.debug.js': [
+                        'public/js/src/abovethefold.loadcss-modified.js'
+                    ],
+
+                    // Original loadCSS
+                    'public/js/min/abovethefold-loadcss.debug.js': [
+                        'bower_components/loadcss/src/loadCSS.js',
+                        'public/js/src/abovethefold.loadcss.js'
+                    ]
+
+                }
+            },
+            admin: {
+                options: {
+                    compress: {
+                        global_defs: merge({
+                            "ABTFDEBUG": false
+                        }, CONFIG_INDEX)
+                    }
+                },
+                files: {
+
+                    // Original loadCSS
+                    'admin/js/admincp.min.js': [
+                        'admin/js/jquery.debounce.js',
+                        'admin/js/admincp.js',
+                        'admin/js/admincp.build-tool.js',
+                        'admin/js/admincp.add-conditional.js',
+                        'admin/js/admincp.criticalcss-editor.js',
+                        'bower_components/selectize/dist/js/standalone/selectize.min.js'
+                    ],
+
+                    // admincp html
+                    'admin/js/admincp-html.min.js': [
+                        'admin/js/admincp-html.js'
+                    ],
+
+                    // admincp PWA
+                    'admin/js/admincp-pwa.min.js': [
+                        'admin/js/admincp-pwa.js'
+                    ],
+
+                    // Codemirror
+                    'admin/js/codemirror.min.js': [
+                        'bower_components/codemirror/lib/codemirror.js',
+                        'bower_components/codemirror/mode/css/css.js',
+                        'admin/js/csslint.js',
+                        'bower_components/codemirror/addon/lint/lint.js',
+                        'bower_components/codemirror/addon/lint/css-lint.js'
+                    ]
+                }
+            },
+
+            serviceworker: {
+                options: {
+                    compress: {
+                        global_defs: merge({
+                            "ABTFDEBUG": false
+                        }, CONFIG_INDEX)
+                    }
+                },
+                files: {
+
+                    // Google PWA controller
+                    'public/js/min/abovethefold-pwa.js': [
+                        'public/js/src/abovethefold.pwa.js'
+                    ],
+
+                    // Google PWA `unregister controller
+                    'public/js/min/abovethefold-pwa-unregister.js': [
+                        'public/js/src/abovethefold.pwa-unregister.js'
+                    ],
+
+                    // Service Worker
+                    'public/js/min/pwa.serviceworker.js': [
+                        'public/js/src/pwa.serviceworker.js'
+                    ]
+                }
+            },
+
+            serviceworker_debug: {
+                options: {
+                    compress: {
+                        global_defs: merge({
+                            "ABTFDEBUG": true
+                        }, CONFIG_INDEX)
+                    }
+                },
+                files: {
+
+                    // Google PWA controller
+                    'public/js/min/abovethefold-pwa.debug.js': [
+                        'public/js/src/abovethefold.pwa.js'
+                    ],
+
+                    // Google PWA `unregister controller
+                    'public/js/min/abovethefold-pwa-unregister.debug.js': [
+                        'public/js/src/abovethefold.pwa-unregister.js'
+                    ],
+                    // Service Worker
+                    'public/js/min/pwa.serviceworker.debug.js': [
+                        'public/js/src/pwa.serviceworker.js'
+                    ]
+                }
+            }
+        },
+
+        cssmin: {
+
+            admincp: {
+                options: {
+                    banner: '',
+                    advanced: true,
+                    aggressiveMerging: true,
+                    processImport: true
+                },
+                files: {
+                    'admin/css/admincp.min.css': [
+                        'admin/css/admincp.css',
+                        'admin/css/admincp-criticalcss.css',
+                        'admin/css/admincp-mobile.css',
+                        'bower_components/selectize/dist/css/selectize.default.css'
+                    ],
+                    'admin/css/admincp-global.min.css': [
+                        'admin/css/admincp-global.css'
+                    ],
+                    'admin/css/admincp-jsoneditor.min.css': [
+                        'admin/css/admincp-jsoneditor.css'
+                    ],
+                    'admin/css/codemirror.min.css': [
+                        'bower_components/codemirror/lib/codemirror.css',
+                        'bower_components/codemirror/addon/lint/lint.css'
+                    ],
+                    'public/css/compare.min.css': [
+                        'public/css/src/compare.css'
+                    ],
+                    'public/css/extractfull.min.css': [
+                        'public/css/src/extractfull.css'
+                    ]
+                }
+            }
+        },
+
+        /**
+         * Copy files
+         */
+        copy: {
+            webfont_package: {
+                src: 'node_modules/webfontloader/package.json',
+                dest: 'public/js/src/webfontjs_package.json'
+            },
+            jquery_lazyxt_package: {
+                src: 'node_modules/lazyloadxt/package.json',
+                dest: 'public/js/src/lazyloadxt_package.json'
+            },
+            loadcss_package: {
+                src: 'bower_components/loadcss/package.json',
+                dest: 'public/js/src/loadcss_package.json'
+            },
+            serviceworker: {
+                src: 'public/js/pwa-serviceworker.js',
+                dest: '../test-blog/abtf-pwa.js'
+            },
+            serviceworker_debug: {
+                src: 'public/js/pwa-serviceworker.debug.js',
+                dest: '../test-blog/abtf-pwa.debug.js'
+            },
+            test_serviceworker: {
+                src: 'public/js/min/pwa.serviceworker.js',
+                dest: 'public/js/pwa-serviceworker.js'
+            },
+            test_serviceworker_debug: {
+                src: 'public/js/min/pwa.serviceworker.debug.js',
+                dest: 'public/js/pwa-serviceworker.debug.js'
+            },
+            test_serviceworkerx: {
+                src: 'public/js/min/pwa.serviceworker.js',
+                dest: '../test-blog/abtf-pwa.js'
+            },
+            test_serviceworkerx_debug: {
+                src: 'public/js/min/pwa.serviceworker.debug.js',
+                dest: '../test-blog/abtf-pwa.debug.js'
+            }
+        }
+    });
+
+    // Load Dependencies
+    require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+
+    grunt.registerTask('build', ['uglify', 'closure-compiler', 'cssmin',
+        'copy:webfont_package',
+        'copy:jquery_lazyxt_package',
+        'copy:loadcss_package',
+        'copy:serviceworker',
+        'copy:serviceworker_debug'
+    ]);
+
+    grunt.registerTask('sw', ['uglify:serviceworker', 'uglify:serviceworker_debug',
+        'copy:test_serviceworker', 'copy:test_serviceworker_debug',
+        'copy:test_serviceworkerx', 'copy:test_serviceworkerx_debug'
+    ]);
+
+    grunt.registerTask('default', ['uglify', 'cssmin']);
 };
