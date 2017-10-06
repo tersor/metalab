@@ -132,8 +132,26 @@ The plugin contains a tool to create Critical CSS based on [Gulp.js](https://gul
 
 == Changelog ==
 
+= 2.9.2 =
+* Added: HTTP/2 Server Push for Critical CSS.
+
+= 2.9.1 =
+* Bugfix: Service Worker JSON config from query parameter not persistent after browser restart.
+
+= 2.9.0 =
+* Added: HTTP/2 Server Push optimization.
+* Added: [Cache Digest](https://calendar.perfplanet.com/2016/cache-digests-http2-server-push/) hash computation in PWA Service Worker for HTTP/2 pushed resources.
+* Added: HTTP/2 test in admin menu.
+* Added: PageSpeed admin menu.
+* Improved: location of PWA config json file sent to Service Worker as a query parameter. ([@16patsle](https://github.com/optimalisatie/above-the-fold-optimization/issues/66))
+* Improved: plugin disabled for REST API requests.
+* Improved: Service Worker cache cleanup in idle time.
+
+= 2.8.22 =
+* Added: WordPress filters `abtf_pwa_sw_scope` and `abtf_pwa_sw_path`.
+
 = 2.8.21 =
-* Bugfix: `start_url` not preloaded ([Google Closure Compiler](https://developers.google.com/closure/compiler/) externs).
+* Bugfix: `start_url` not preloaded ([Google Closure Compiler](https://developers.google.com/closure/compiler/) externs). 
 
 = 2.8.20 =
 * Bugfix: manifest.json stored with escaped slashes. ([@VidyutK](https://github.com/optimalisatie/above-the-fold-optimization/issues/63))

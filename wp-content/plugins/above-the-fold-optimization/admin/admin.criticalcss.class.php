@@ -111,7 +111,7 @@ class Abovethefold_Admin_CriticalCSS
      */
     public function enqueue_scripts($hook)
     {
-        if (!isset($_REQUEST['page']) || $_REQUEST['page'] !== 'abovethefold') {
+        if (!isset($_REQUEST['page']) || ($_GET['page'] !== 'pagespeed-criticalcss' && $_GET['page'] !== 'pagespeed-above-the-fold')) {
             return;
         }
 
@@ -542,6 +542,11 @@ class Abovethefold_Admin_CriticalCSS
          */
         $options['csseditor'] = (isset($input['csseditor']) && intval($input['csseditor']) === 1) ? true : false;
 
+        /**
+         * HTTP/2 Server Push optimization
+         */
+        $options['http2_push_criticalcss'] = (isset($input['http2_push_criticalcss']) && intval($input['http2_push_criticalcss']) === 1) ? true : false;
+
         $criticalcss_dir = $this->CTRL->theme_path('critical-css');
 
         /**
@@ -633,7 +638,7 @@ class Abovethefold_Admin_CriticalCSS
         // update settings
         $this->CTRL->admin->save_settings($options, 'Critical CSS saved.');
 
-        wp_redirect(add_query_arg(array( 'page' => 'abovethefold', 'tab' => 'criticalcss' ), admin_url('admin.php')));
+        wp_redirect(add_query_arg(array( 'page' => 'pagespeed-criticalcss' ), admin_url('admin.php')));
         exit;
     }
 
@@ -662,7 +667,7 @@ class Abovethefold_Admin_CriticalCSS
         $name = (isset($_POST['name'])) ? trim($_POST['name']) : '';
         if ($name === '') {
             $this->CTRL->admin->set_notice('You did not enter a name.', 'ERROR');
-            wp_redirect(add_query_arg(array( 'page' => 'abovethefold', 'tab' => 'criticalcss' ), admin_url('admin.php')));
+            wp_redirect(add_query_arg(array( 'page' => 'pagespeed-criticalcss' ), admin_url('admin.php')));
             exit;
         }
 
@@ -670,7 +675,7 @@ class Abovethefold_Admin_CriticalCSS
 
         if (isset($criticalcss_files[$cssfile])) {
             $this->CTRL->admin->set_notice('A conditional critical CSS configuration with the filename <strong>'.htmlentities($cssfile, ENT_COMPAT, 'utf-8').'</strong> already exists.', 'ERROR');
-            wp_redirect(add_query_arg(array( 'page' => 'abovethefold', 'tab' => 'criticalcss' ), admin_url('admin.php')));
+            wp_redirect(add_query_arg(array( 'page' => 'pagespeed-criticalcss' ), admin_url('admin.php')));
             exit;
         }
 
@@ -697,7 +702,7 @@ class Abovethefold_Admin_CriticalCSS
         // update settings
         $this->CTRL->admin->save_settings($options, 'Conditional Critical CSS created.');
 
-        wp_redirect(add_query_arg(array( 'page' => 'abovethefold', 'tab' => 'criticalcss' ), admin_url('admin.php'))  . '#conditional');
+        wp_redirect(add_query_arg(array( 'page' => 'pagespeed-criticalcss' ), admin_url('admin.php'))  . '#conditional');
         exit;
     }
 
@@ -725,7 +730,7 @@ class Abovethefold_Admin_CriticalCSS
         // update settings
         $this->CTRL->admin->save_settings($options, 'Conditional Critical CSS deleted.');
 
-        wp_redirect(add_query_arg(array( 'page' => 'abovethefold', 'tab' => 'criticalcss' ), admin_url('admin.php')) . '#conditional');
+        wp_redirect(add_query_arg(array( 'page' => 'pagespeed-criticalcss' ), admin_url('admin.php')) . '#conditional');
         exit;
     }
 }
