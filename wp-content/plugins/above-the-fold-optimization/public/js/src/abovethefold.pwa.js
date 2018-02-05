@@ -242,4 +242,45 @@ Abtf[CONFIG.LOAD_MODULE](function(window, Abtf) {
         });
     }
 
+    /**
+     * Preload in service worker on mousedown
+     */
+    if (PWA_CONFIG[CONFIG.PWA_PRELOAD_MOUSEDOWN]) {
+
+        var MOUSEDOWN_PRELOAD_ENABLED = true;
+
+        // initiate preload
+        var INIT_PRELOAD = function() {
+            if (MOUSEDOWN_PRELOAD_ENABLED) {
+                var href = this.getAttribute('href');
+                if (href) {
+                    OFFLINE(href, function() {});
+                }
+            }
+        }
+
+        // domready
+        Abtf[CONFIG.DOMREADY](function() {
+            if (window.jQuery) {
+                window.jQuery(function($) {
+                    $('body').on('mousedown', 'a', INIT_PRELOAD);
+                });
+            } else {
+                var links = Array.prototype.slice.call(
+                    document.getElementsByTagName('a')
+                );
+
+                var count = links.length;
+                for (var i = 0; i < count; i++) {
+                    links[i].onmousedown = INIT_PRELOAD;
+                }
+            }
+        });
+
+        // public method to enable/disable functionality
+        Abtf.mousedown = function(state) {
+            MOUSEDOWN_PRELOAD_ENABLED = (state) ? true : false;
+        }
+    }
+
 });

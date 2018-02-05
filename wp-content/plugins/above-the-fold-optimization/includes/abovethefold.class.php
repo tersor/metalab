@@ -103,14 +103,14 @@ class Abovethefold
             // extract full CSS view
             'extract-css' => array( 'admin_bar' => false ),
 
-            // compare critical CSS with full CSS
-            'compare-abtf' => array( 'admin_bar' => false ),
+            // critical CSS quality test and editor
+            'critical-css-editor' => array( 'admin_bar' => false, 'nohash' => true ),
 
             // view website with just the critical CSS
-            'abtf-critical-only' => array( 'admin_bar' => false ),
+            'critical-css-view' => array( 'admin_bar' => false, 'nohash' => true ),
 
             // view website regularly, but without the admin toolbar for comparison view
-            'abtf-critical-verify' => array( 'admin_bar' => false ),
+            'full-css-view' => array( 'admin_bar' => false , 'nohash' => true ),
 
             // build tool HTML export for Gulp.js critical task
             'abtf-buildtool-html' => array( 'admin_bar' => false ),
@@ -124,7 +124,10 @@ class Abovethefold
         foreach ($views as $viewKey => $viewSettings) {
 
             // check if view is active
-            if (isset($_REQUEST[$viewKey]) && $_REQUEST[$viewKey] === $view_hash) {
+            if (isset($_REQUEST[$viewKey])) {
+                if ((!isset($viewSettings['nohash']) || !$viewSettings['nohash']) && $_REQUEST[$viewKey] !== $view_hash) {
+                    continue;
+                }
 
                 // set view
                 $this->view = $viewKey;
@@ -327,19 +330,19 @@ class Abovethefold
                     );
                 }
             } else {*/
-                foreach ($algorithms as $algorithm) {
-                    try {
-                        $json[$algorithm] = array(
+            foreach ($algorithms as $algorithm) {
+                try {
+                    $json[$algorithm] = array(
                             'public' => $this->optimization->get_client_script_hash(false, $algorithm),
                             'debug' => $this->optimization->get_client_script_hash(true, $algorithm)
                         );
-                    } catch (Exception $err) {
-                        $json[$algorithm] = array(
+                } catch (Exception $err) {
+                    $json[$algorithm] = array(
                             'public' => 'FAILED',
                             'debug' => 'FAILED'
                         );
-                    }
                 }
+            }
             //}
 
             while (ob_get_level()) {
@@ -435,14 +438,14 @@ class Abovethefold
         }
 
         /**
-         * Compare Critical CSS view
+         * Critical CSS Quality Test view
          */
-        if ($this->view === 'compare-abtf') {
+        if ($this->view === 'critical-css-editor') {
 
             /**
              * The class responsible for defining all actions related to compare critical CSS
              */
-            require_once WPABTF_PATH . 'includes/compare-abtf.class.php';
+            require_once WPABTF_PATH . 'includes/critical-css-editor.class.php';
         }
 
         /**
@@ -471,7 +474,18 @@ class Abovethefold
         /**
          * Return url with view query string
          */
-        return preg_replace('|\#.*$|Ui', '', $currenturl) . ((strpos($currenturl, '?') !== false) ? '&' : '?') . $view . '=' . md5(SECURE_AUTH_KEY . AUTH_KEY) . (!empty($query) ? '&' . http_build_query($query) : '');
+
+        switch ($view) {
+            case "critical-css-editor":
+            case "critical-css-view":
+                $value = 1;
+            break;
+            default:
+                $value = md5(SECURE_AUTH_KEY . AUTH_KEY);
+            break;
+        }
+
+        return preg_replace('|\#.*$|Ui', '', $currenturl) . ((strpos($currenturl, '?') !== false) ? '&' : '?') . $view . '=' . $value . (!empty($query) ? '&' . http_build_query($query) : '');
     }
 
     /**
@@ -548,6 +562,7 @@ class Abovethefold
         }
         if (is_dir($path)) {
             chmod($path, $mask);
+
             return true;
         }
 
@@ -572,6 +587,7 @@ class Abovethefold
         foreach ($files as $file) {
             (is_dir("$dir/$file")) ? $this->rmdir("$dir/$file") : @unlink("$dir/$file");
         }
+
         return @rmdir($dir);
     }
 
@@ -587,6 +603,7 @@ class Abovethefold
 
         if (file_exists($file)) {
             chmod($file, $mask);
+
             return true;
         }
 
@@ -699,13 +716,13 @@ class Abovethefold
     public function remote_get($url, $args = array())
     {
         $args = array_merge(array(
-            'timeout'     => 60,
+            'timeout' => 60,
             'redirection' => 5,
-            'sslverify'   => false,
+            'sslverify' => false,
 
             // Chrome Generic Win10
             // @link https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
-            'user-agent'  => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36',
         ), $args);
 
         // Request headers

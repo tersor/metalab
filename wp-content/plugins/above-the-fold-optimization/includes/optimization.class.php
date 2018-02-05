@@ -69,7 +69,7 @@ class Abovethefold_Optimization
      */
     public function __construct(&$CTRL)
     {
-        $this->CTRL =& $CTRL;
+        $this->CTRL = & $CTRL;
 
         if ($this->CTRL->disabled) {
             return; // above the fold optimization disabled for area / page
@@ -121,6 +121,18 @@ class Abovethefold_Optimization
          */
         $this->html_replace = (isset($this->CTRL->options['html_search_replace']) && is_array($this->CTRL->options['html_search_replace']) && !empty($this->CTRL->options['html_search_replace'])) ? $this->CTRL->options['html_search_replace'] : false;
 
+
+        // ignore critical css view controller in javascript optimization
+        if ($this->CTRL->view === 'critical-css-view') {
+            add_filter('abtf_jsfile_pre', function ($file) {
+                if (strpos($file, 'critical-css-view.min.js') !== false) {
+                    return 'ignore';
+                }
+
+                return $file;
+            });
+        }
+
         /**
          * Extract Full CSS view
          */
@@ -128,12 +140,12 @@ class Abovethefold_Optimization
 
             // load optimization controller
             $this->CTRL->extractcss = new Abovethefold_ExtractFullCss($this->CTRL);
-        } elseif ($this->CTRL->view === 'compare-abtf') {
+        } elseif ($this->CTRL->view === 'critical-css-editor') {
 
             /**
              * Compare Critical CSS view
              */
-            $this->CTRL->compare = new Abovethefold_CompareABTF($this->CTRL);
+            $this->CTRL->critical_css_test = new Abovethefold_CriticalCSSEditor($this->CTRL);
         } else {
 
             /**
@@ -153,8 +165,8 @@ class Abovethefold_Optimization
                 /**
                  * Move output buffer to front of other buffers
                  * /
-                $this->CTRL->loader->add_action('template_redirect', $this, 'move_ob_to_front',99999);
-                */
+                 * $this->CTRL->loader->add_action('template_redirect', $this, 'move_ob_to_front',99999);
+                 */
             }
         }
 
@@ -247,13 +259,6 @@ class Abovethefold_Optimization
     }
 
     /**
-     * Return config index
-     */
-    public function config_index($key, $subkey = false)
-    {
-    }
-
-    /**
      * Extract stylesheets from HTML
      */
     public function extract_stylesheets($HTML)
@@ -316,7 +321,7 @@ class Abovethefold_Optimization
                 /**
                  * No src, skip
                  */
-                if (strpos($script, 'src') === false|| !preg_match('#src\s*=\s*["\']([^"\']+)["\']#i', $script, $srcOut)) {
+                if (strpos($script, 'src') === false || !preg_match('#src\s*=\s*["\']([^"\']+)["\']#i', $script, $srcOut)) {
                     continue 1;
                 }
 
@@ -575,7 +580,7 @@ class Abovethefold_Optimization
             /**
              * Filter CSS files
              */
-            if ($this->CTRL->options['gwfo'] || $this->CTRL->options['css_proxy'] || $this->CTRL->view === 'abtf-critical-only') {
+            if ($this->CTRL->options['gwfo'] || $this->CTRL->options['css_proxy'] || $this->CTRL->view === 'critical-css-view') {
                 $stylesheets = $this->extract_stylesheets($buffer);
                 if (!empty($stylesheets)) {
                     foreach ($stylesheets as $stylesheet) {
@@ -593,7 +598,7 @@ class Abovethefold_Optimization
                         }
 
                         // delete file
-                        if ($filterResult === 'delete' || $this->CTRL->view === 'abtf-critical-only') {
+                        if ($filterResult === 'delete' || $this->CTRL->view === 'critical-css-view') {
 
                             // delete from HTML
                             $search[] = $matchedTag;
@@ -859,7 +864,7 @@ class Abovethefold_Optimization
             /**
              * Remove full CSS and show critical CSS only
              */
-            if ($this->CTRL->view === 'abtf-critical-only') { // , 'abtf-buildtool-html'
+            if ($this->CTRL->view === 'critical-css-view') { // , 'abtf-buildtool-html'
 
                 // do not render the stylesheet files
                 $styles_json = 'false';
@@ -997,7 +1002,10 @@ class Abovethefold_Optimization
 
             try {
                 $replaced = preg_replace_callback(
-                '/<!--([\\s\\S]*?)-->/', array($this, 'remove_comments'), $buffer);
+                '/<!--([\\s\\S]*?)-->/',
+                    array($this, 'remove_comments'),
+                    $buffer
+                );
             } catch (Exception $e) {
                 $replaced = false;
             }
@@ -1027,7 +1035,17 @@ class Abovethefold_Optimization
          * Add noindex meta to prevent indexing in Google
          */
         if ($this->CTRL->view) {
+
+            // send noindex HTTP header
+            if (!headers_sent()) {
+                header("X-Robots-Tag: noindex, nofollow", true);
+            }
+            
             print '<meta name="robots" content="noindex, nofollow" />';
+        }
+
+        if (in_array($this->CTRL->view, array('critical-css-view', 'full-css-view'))) {
+            require_once WPABTF_PATH . 'includes/critical-css-view-header.inc.php';
         }
 
         // debug enabled?
@@ -1239,6 +1257,7 @@ class Abovethefold_Optimization
     public function get_client_script_hash($debug = false, $algorithm = 'sha256')
     {
         $script = $this->get_client_script($debug);
+
         return base64_encode(hash($algorithm, $script['client'], true));
     }
 
@@ -1269,8 +1288,8 @@ class Abovethefold_Optimization
     /**
      * Remove comments from HTML
      *
-     * @param  array     $match        The preg_replace_callback match result.
-     * @return string                  The modified string.
+     * @param  array  $match The preg_replace_callback match result.
+     * @return string The modified string.
      */
     public function remove_comments($match)
     {

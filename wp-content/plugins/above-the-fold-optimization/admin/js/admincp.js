@@ -25,12 +25,18 @@ jQuery(function($) {
      * Page selection menu
      */
     if (jQuery('select.wp-pageselect').length > 0 && typeof jQuery('select.wp-pageselect').selectize !== 'undefined') {
-        jQuery('select.wp-pageselect').selectize({
+        var page_select_menu = jQuery('select.wp-pageselect').selectize({
             placeholder: "Search a post/page/category ID or name...",
             optgroupField: 'class',
             labelField: 'name',
             searchField: ['name'],
             optgroups: window.abtf_pagesearch_optgroups,
+            onType: function(str) {
+                if (/^http(s)?:\/\/[^\/]+\//.test(str)) {
+                    var selectize = page_select_menu[0].selectize;
+                    selectize.setTextboxValue(str.replace(/^http(s)?:\/\/[^\/]+\//, '/'));
+                }
+            },
             load: function(query, callback) {
                 if (!query.length) return callback();
                 jQuery.ajax({
@@ -99,12 +105,12 @@ jQuery(function($) {
     /**
      * Compare Critical CSS menu
      */
-    if (jQuery('#comparepages').length > 0 && typeof jQuery('#comparepages').selectize !== 'undefined') {
+    if (jQuery('#criticalcss-test-pages').length > 0 && typeof jQuery('#criticalcss-test-pages').selectize !== 'undefined') {
 
         // download button
-        jQuery('#comparepages_split').on('click', function() {
+        jQuery('#splitview').on('click', function() {
 
-            var href = jQuery('#comparepages').val();
+            var href = jQuery('#criticalcss-test-pages').val();
 
             if (href === '') {
                 alert('Select a page...');
@@ -116,13 +122,31 @@ jQuery(function($) {
             } else {
                 href += '?';
             }
-            window.open(href + 'compare-abtf=' + jQuery('#comparepages_split').attr('rel'));
+            window.open(href + 'critical-css-editor=1');
+        });
+
+        // download button
+        jQuery('#editorview').on('click', function() {
+
+            var href = jQuery('#criticalcss-test-pages').val();
+
+            if (href === '') {
+                alert('Select a page...');
+                return;
+            }
+
+            if (/\?/.test(href)) {
+                href += '&';
+            } else {
+                href += '?';
+            }
+            window.open(href + 'critical-css-editor=1#editor');
         });
 
         // print button
-        jQuery('#comparepages_full').on('click', function() {
+        jQuery('#fullview').on('click', function() {
 
-            var href = jQuery('#comparepages').val();
+            var href = jQuery('#criticalcss-test-pages').val();
 
             if (href === '') {
                 alert('Select a page...');
@@ -134,7 +158,7 @@ jQuery(function($) {
             } else {
                 href += '?';
             }
-            window.open(href + 'abtf-critical-only=' + jQuery('#comparepages_full').attr('rel'));
+            window.open(href + 'critical-css-view=1');
         });
 
     }

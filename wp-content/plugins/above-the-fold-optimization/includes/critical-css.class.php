@@ -24,7 +24,7 @@ class Abovethefold_Critical_CSS
      */
     public function __construct(&$CTRL)
     {
-        $this->CTRL =& $CTRL;
+        $this->CTRL = & $CTRL;
     }
 
     /**
@@ -35,7 +35,10 @@ class Abovethefold_Critical_CSS
         $errors = array();
 
         // get config cache
-        $fileconfig = get_option('abovethefold-criticalcss');
+        $fileconfig = get_option('abovethefold-criticalcss', array());
+        if (!is_array($fileconfig)) {
+            $fileconfig = array();
+        }
 
         // read critical CSS files from theme directory (/abovethefold/critical-css/)
         $criticalcss_dir = $this->CTRL->theme_path('critical-css');
@@ -232,10 +235,12 @@ class Abovethefold_Critical_CSS
                 if ($a['weight'] == $b['weight']) {
                     return 0;
                 }
+
                 return ($a['weight'] < $b['weight']) ? +1 : -1;
             });
 
             update_option('abovethefold-criticalcss', $newfileconfig, true);
+
             return $newfileconfig;
         } else {
             return $fileconfig;
@@ -253,6 +258,7 @@ class Abovethefold_Critical_CSS
 
         // strip config header
         $cssdata = trim(preg_replace('|^\s*/\*(.*?)\*/|is', '', trim(file_get_contents($file))));
+
         return $cssdata;
     }
 
@@ -288,6 +294,7 @@ class Abovethefold_Critical_CSS
             $errors[] = array(
                 'message' => 'Invalid Critical CSS file: ' . htmlentities($file, ENT_COMPAT, 'utf-8')
             );
+
             return $errors;
         }
 
@@ -438,6 +445,8 @@ class Abovethefold_Critical_CSS
         $primary_criticalcss = array();
         $preAppendFiles = array();
 
+        $debug_criticalcss = ($this->CTRL->view === 'critical-css-view');
+
         if (!empty($criticalcss_files)) {
             // match conditional CSS
             foreach ($criticalcss_files as $file => $config) {
@@ -528,6 +537,10 @@ class Abovethefold_Critical_CSS
                     }
                     $csshash = md5($cssdata);
 
+                    if ($debug_criticalcss) {
+                        $cssdata = "\n\n/*\n * @critical-css-file " . basename($config['file']) . "\n */\n" . $cssdata;
+                    }
+
                     $appendPrepend = false;
                     $preappend = array('append','prepend');
                     foreach ($preappend as $type) {
@@ -577,8 +590,12 @@ class Abovethefold_Critical_CSS
         
         // no matching primary critical css, use global.css
         if (!$primary_criticalcss) {
+            $cssdata = (isset($criticalcss_files['global.css']) ? $this->get_file_contents($criticalcss_files['global.css']['file']) : '');
+            if ($debug_criticalcss) {
+                $cssdata = "\n\n/*\n * @critical-css-file global.css\n */\n" . $cssdata;
+            }
             $primary_criticalcss = $primary_criticalcss = array(
-                'css' => (isset($criticalcss_files['global.css']) ? $this->get_file_contents($criticalcss_files['global.css']['file']) : ''),
+                'css' => $cssdata,
                 'file' => 'global.css',
                 'match' => false
             );
@@ -627,14 +644,18 @@ class Abovethefold_Critical_CSS
         // critical css
         $criticalCSS = '';
 
+        if ($debug_criticalcss) {
+            $criticalCSS .= "/**\n * Critical CSS Editor\n *\n * The extracted Critical CSS has been annotated with file references for easy editing. \n * The Critical CSS source files are located in the theme directory .../".basename(get_stylesheet_directory())."/abovethefold/critical-css/\n */\n\n";
+        }
+
         /**
          * Hide Critical CSS for verification view
          */
         if ($this->CTRL->view === 'no-critical-css' || $this->CTRL->view === 'critical-css-creator-html') {
             if ($debug) {
-                $criticalCSS = '
+                $criticalCSS .= '
 /*!
- * Above The Fold Optimization ' . $this->CTRL->get_version() . '
+ * Page Speed Optimization ' . $this->CTRL->get_version() . '
  * Full CSS View: Critical CSS is excluded from page.
  */
 ';
@@ -644,48 +665,38 @@ class Abovethefold_Critical_CSS
         /**
          * Include inline CSS
          */
-         elseif ($primary_criticalcss['css'] !== '') {
+        elseif ($primary_criticalcss['css'] !== '') {
 
             /**
              * Debug header
              */
             if ($debug) {
-                $criticalCSS = '
+                $criticalCSS .= '
 /*!
- * Above The Fold Optimization ' . $this->CTRL->get_version() . '
+ * Page Speed Optimization ' . $this->CTRL->get_version() . '
  * This message is visible to admins and editors only.
  *
 ' . htmlentities($servedfiles, ENT_COMPAT, 'utf-8') . $matchedconditions . $debugnotice . '
  */
 ' . $primary_criticalcss['css'];
             } else {
-                $criticalCSS = $primary_criticalcss['css'];
+                $criticalCSS .= $primary_criticalcss['css'];
             }
-         } else {
+        } else {
 
             /**
-             * Print warning for admin users that critical CSS is empty
+             * Print warning when Critical CSS is empty
              */
-            if ($debug) {
-                $criticalCSS = '
+            $criticalCSS .= '
 /*!
- * Above The Fold Optimization ' . $this->CTRL->get_version() . '
+ * Page Speed Optimization ' . $this->CTRL->get_version() . '
  * 
  * ------------------------------------
  *    WARNING: CRITICAL CSS IS EMPTY     
  * ------------------------------------
- * 
- * This message is displayed for admins only.
  */
 ';
-            } else {
-                $criticalCSS = '
-/*!
- * Above The Fold Optimization ' . $this->CTRL->get_version() . ' // EMPTY
- */
-';
-            }
-         }
+        }
 
         return $criticalCSS;
     }

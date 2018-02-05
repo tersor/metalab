@@ -23,7 +23,7 @@
 						</h3>
 						<div class="inside testcontent">
 
-						<div style="text-align:center;"><a href="https://developers.google.com/web/tools/lighthouse/" target="_blank"><img src="<?php print WPABTF_URI; ?>admin/images/google-lighthouse-pwa-validation.jpg" alt="Google Bot" width="100%" style="max-width:1141px;max-height:314px;" title="Google Lighthouse PWA Validation"></a></div>
+						<div style="text-align:center;"><a href="https://developers.google.com/web/tools/lighthouse/" target="_blank"><img src="<?php print WPABTF_URI; ?>admin/images/google-lighthouse-pwa-validation.jpg" alt="Google Bot" width="100%" style="max-width:1141px;max-height:359px;" title="Google Lighthouse PWA Validation"></a></div>
 
 						<p>Google has been promoting <a href="https://developers.google.com/web/progressive-web-apps/" target="_blank">Progressive Web Apps</a> (PWA) as the future of the internet: a combination of the flexability and openness of the existing web with the user experience advantages of native mobile apps. In essence: a mobile app that can be indexed by Google and that can be managed by WordPress.</p>
 						<p>Google provides an extensive test called <a href="https://developers.google.com/web/tools/lighthouse/" target="_blank">Lighthouse</a> that tests for validity against the key qualities of a Progressive Web App: performance, accessibility, and more.</p>
@@ -189,6 +189,15 @@ submit_button(__('Save'), 'primary large', 'is_submit', false);
 		</td>
 	</tr>
 	<tr valign="top">
+		<th scope="row">Preload on Mouse Down</th>
+		<td>
+			<label><input type="checkbox" name="abovethefold[pwa_preload_mousedown]" value="1"<?php if (isset($options['pwa_preload_mousedown']) && intval($options['pwa_preload_mousedown']) === 1) {
+    print ' checked';
+} ?> /> Enabled</label>
+			<p class="description">Start preloading navigation requests in the Service Worker on mouse down. Older mobile devices including iOS8 have a <a href="https://encrypted.google.com/search?q=300ms+tap+delay+mobile" target="_blank" rel="noopener">300ms click delay</a> which is a lot of time wasted for navigation clicks. An average mouse click also has a 200-500ms delay before navigation starts. This feature enables to start preloading a page in the Service Worker on mouse down/touch start to make use of the otherwise wasted delay.</p>
+		</td>
+	</tr>
+	<tr valign="top">
 		<th scope="row"><?php
 submit_button(__('Save'), 'primary large', 'is_submit', false);
 ?></th>
@@ -198,14 +207,14 @@ submit_button(__('Save'), 'primary large', 'is_submit', false);
 				<?php if (isset($options['pwa_cache_pages_offline']) && trim($options['pwa_cache_pages_offline']) !== '') {
 
                     // WordPress URL?
-                    $postid = url_to_postid($options['pwa_cache_pages_offline']);
+    $postid = url_to_postid($options['pwa_cache_pages_offline']);
     if ($postid) {
         $name = $postid . '. ' . str_replace(home_url(), '', get_permalink($postid)) . ' - ' . get_the_title($postid);
     } else {
         $name = $options['pwa_cache_pages_offline'];
     }
 
-    print '<option data-data="'.esc_attr(json_encode(array('name'=>$name))).'" value="' . esc_attr($options['pwa_cache_pages_offline']) . '" selected>' . esc_attr($options['pwa_cache_pages_offline']) . '</option>';
+    print '<option data-data="'.esc_attr(json_encode(array('name' => $name))).'" value="' . esc_attr($options['pwa_cache_pages_offline']) . '" selected>' . esc_attr($options['pwa_cache_pages_offline']) . '</option>';
 } ?>
 			</select>
 			<p class="description">Enter an URL or absolute path to a HTML page to display when the network is offline and when the requested page is not available in cache.</p>
@@ -268,6 +277,10 @@ submit_button(__('Save'), 'primary large', 'is_submit', false);
     echo $this->CTRL->admin->newline_array_string($options['pwa_cache_preload']);
 } ?></textarea>
 			<p class="description">Enter URLs or absolute path's to preload for offline availability, e.g. <code>/path/to/page.html</code> or <code>/path/to/image.jpg</code>.</p>
+
+			<p style="margin-top:1em;"><label><input type="checkbox" name="abovethefold[pwa_cache_preload_require]" value="1"<?php if (isset($options['pwa_cache_preload_require']) && intval($options['pwa_cache_preload_require']) === 1) {
+    print ' checked';
+} ?> /> Require preloading to complete in Service Worker installation. This option will activate the service worker after all assets have been preloaded.</label></p>
 		</td>
 	</tr>
 	<tr valign="top">
@@ -297,7 +310,6 @@ submit_button(__('Save'), 'primary large', 'is_submit', false);
 			<div id="webapp_manifest"><div class="loading-json-editor"><?php print __('Loading JSON editor...', 'pagespeed'); ?></div></div>
 <input type="hidden" name="abovethefold[manifest_json]" id="webapp_manifest_src" value="<?php echo esc_attr(json_encode($manifestjson)); ?>"  />
 <?php
-
     }
 ?>
         	<div style="clear:both;height:10px;"></div>

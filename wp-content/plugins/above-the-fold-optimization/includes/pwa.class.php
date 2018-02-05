@@ -20,12 +20,19 @@ class Abovethefold_PWA
      */
     public $CTRL;
 
+    // preload list
+    private $preload = array();
+
     /**
      * Initialize the class and set its properties
      */
     public function __construct(&$CTRL)
     {
-        $this->CTRL =& $CTRL;
+        $this->CTRL = & $CTRL;
+
+        if (isset($this->CTRL->options['pwa_cache_preload']) && $this->CTRL->options['pwa_cache_preload']) {
+            $this->preload = $this->CTRL->options['pwa_cache_preload'];
+        }
 
         if ($this->CTRL->disabled) {
             return; // above the fold optimization disabled for area / page
@@ -63,17 +70,19 @@ class Abovethefold_PWA
         } else {
             $scope = trailingslashit(parse_url(site_url(), PHP_URL_PATH));
         }
+
         return apply_filters('abtf_pwa_sw_scope', $scope);
     }
 
     /**
      * Return service worker path
      */
-    public function get_sw_path($debug=false)
+    public function get_sw_path($debug = false)
     {
         $sw = $this->get_sw();
         $file = ($debug) ? $sw['filename_debug'] : $sw['filename'];
         $path = trailingslashit(parse_url(site_url(), PHP_URL_PATH));
+
         return apply_filters('abtf_pwa_sw_path', $path . $file . '?path=' . urlencode($path));
     }
 
@@ -142,6 +151,17 @@ class Abovethefold_PWA
             }
 
             $cache_policy[] = $page_cache_policy;
+
+            // Lighthouse audit bug results in false negative, require URL based match of start URL
+            // @link https://github.com/GoogleChrome/lighthouse/issues/4312
+            if (isset($this->CTRL->options['pwa_manifest_start_url']) && $this->CTRL->options['pwa_manifest_start_url'] && $this->CTRL->options['pwa_manifest_start_url'] !== '/') {
+
+                // create start url cache policy
+                $page_cache_policy['match'] = array(
+                        array( 'type' => 'url', 'pattern' => $this->CTRL->options['pwa_manifest_start_url'] )
+                );
+                $cache_policy[] = $page_cache_policy;
+            }
         }
 
         $config = array(
@@ -149,12 +169,22 @@ class Abovethefold_PWA
         );
 
         // preload assets
-        if (isset($this->CTRL->options['pwa_cache_preload']) && $this->CTRL->options['pwa_cache_preload']) {
-            $config['preload'] = $this->CTRL->options['pwa_cache_preload'];
+        
+        // apply filters
+        $this->preload = apply_filters('abtf_pwa_preload', $this->preload);
+
+        if (!empty($this->preload)) {
+            $config['preload'] = $this->preload;
+
+            $config['preload_install'] = (isset($this->CTRL->options['pwa_cache_preload_require']) && $this->CTRL->options['pwa_cache_preload_require']) ? true : false;
         }
 
         if (isset($this->CTRL->options['pwa_manifest_start_url']) && $this->CTRL->options['pwa_manifest_start_url']) {
             $config['start_url'] = $this->CTRL->options['pwa_manifest_start_url'];
+        }
+
+        if (isset($this->CTRL->options['pwa_cache_version']) && $this->CTRL->options['pwa_cache_version']) {
+            $config['cache_version'] = $this->CTRL->options['pwa_cache_version'];
         }
 
         return $config;
@@ -379,6 +409,13 @@ class Abovethefold_PWA
             $pwasettings['max_size'] = '';
         }
 
+        // preload on mouse down
+        if (isset($this->CTRL->options['pwa_preload_mousedown']) && $this->CTRL->options['pwa_preload_mousedown']) {
+            $pwasettings['preload_mousedown'] = true;
+        } else {
+            $pwasettings['preload_mousedown'] = false;
+        }
+
         // add pwa settings to client settings
         $jssettings[$pwaindex] = array();
         foreach ($pwasettings as $key => $value) {
@@ -404,7 +441,6 @@ class Abovethefold_PWA
             }
             ksort($jssettings[$pwaindex]);
         }
-
         $jsfiles[] = WPABTF_PATH . 'public/js/abovethefold-pwa'.$jsdebug.'.min.js';
     }
 }

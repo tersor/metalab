@@ -44,7 +44,8 @@ module.exports = function(grunt) {
         'public/js/abovethefold-loadcss-enhanced.min.js': 'public/js/min/abovethefold-loadcss-enhanced.js',
         'public/js/abovethefold-loadcss.min.js': 'public/js/min/abovethefold-loadcss.js',
         'public/js/abovethefold-pwa.min.js': 'public/js/min/abovethefold-pwa.js',
-        'public/js/pwa-serviceworker.js': 'public/js/min/pwa.serviceworker.js'
+        'public/js/pwa-serviceworker.js': 'public/js/min/pwa.serviceworker.js',
+        'admin/js/css-extract-widget.min.js': 'public/js/min/css-extract-widget.js'
     };
 
     var srcfile;
@@ -70,12 +71,15 @@ module.exports = function(grunt) {
         // debug
         srcfile = CCfiles[file].replace('.js', '.debug.js');
 
+        if (file.indexOf('admin/js/') !== -1) {
+            continue;
+        }
+
         if (file.indexOf('pwa-serviceworker') !== -1) {
             file = file.replace('.js', '.debug.js');
         } else {
             file = file.replace('.min.js', '.debug.min.js');
         }
-
 
         CC[file] = {
             closurePath: '../closure-compiler',
@@ -154,13 +158,22 @@ module.exports = function(grunt) {
 
                     // Original loadCSS
                     'public/js/min/abovethefold-loadcss.js': [
-                        'bower_components/loadcss/src/loadCSS.js',
+                        'public/js/src/loadcss.js',
                         'public/js/src/abovethefold.loadcss.js'
                     ],
 
-                    // Compare Critical CSS view
-                    'public/js/compare.min.js': [
-                        'public/js/src/compare.js'
+                    // Critical CSS Editor
+                    'public/js/critical-css-editor.min.js': [
+                        'node_modules/jquery/dist/jquery.min.js',
+                        'node_modules/split.js/split.min.js',
+                        'admin/js/codemirror.min.js',
+                        'public/js/src/critical-css-editor.js'
+                    ],
+
+                    // Critical CSS view
+                    'public/js/critical-css-view.min.js': [
+                        'admin/js/css-extract-widget.min.js',
+                        'public/js/src/critical-css-view.js'
                     ],
 
                     // Extract full CSS view
@@ -235,7 +248,7 @@ module.exports = function(grunt) {
 
                     // Original loadCSS
                     'public/js/min/abovethefold-loadcss.debug.js': [
-                        'bower_components/loadcss/src/loadCSS.js',
+                        'public/js/src/loadcss.js',
                         'public/js/src/abovethefold.loadcss.js'
                     ]
 
@@ -258,7 +271,7 @@ module.exports = function(grunt) {
                         'admin/js/admincp.build-tool.js',
                         'admin/js/admincp.add-conditional.js',
                         'admin/js/admincp.criticalcss-editor.js',
-                        'bower_components/selectize/dist/js/standalone/selectize.min.js'
+                        'node_modules/selectize/dist/js/standalone/selectize.min.js'
                     ],
 
                     // admincp html
@@ -278,12 +291,17 @@ module.exports = function(grunt) {
 
                     // Codemirror
                     'admin/js/codemirror.min.js': [
-                        'bower_components/codemirror/lib/codemirror.js',
-                        'bower_components/codemirror/mode/css/css.js',
+                        'node_modules/codemirror/lib/codemirror.js',
+                        'node_modules/codemirror/mode/css/css.js',
                         'admin/js/csslint.js',
-                        'bower_components/codemirror/addon/lint/lint.js',
-                        'bower_components/codemirror/addon/lint/css-lint.js'
-                    ]
+                        'node_modules/codemirror/addon/lint/lint.js',
+                        'node_modules/codemirror/addon/lint/css-lint.js'
+                    ],
+
+                    // Critical CSS Extract widget
+                    'public/js/min/css-extract-widget.js': [
+                        'admin/js/css-extract-widget.js'
+                    ],
                 }
             },
 
@@ -355,7 +373,7 @@ module.exports = function(grunt) {
                         'admin/css/admincp.css',
                         'admin/css/admincp-criticalcss.css',
                         'admin/css/admincp-mobile.css',
-                        'bower_components/selectize/dist/css/selectize.default.css'
+                        'node_modules/selectize/dist/css/selectize.default.css'
                     ],
                     'admin/css/admincp-global.min.css': [
                         'admin/css/admincp-global.css'
@@ -364,11 +382,12 @@ module.exports = function(grunt) {
                         'admin/css/admincp-jsoneditor.css'
                     ],
                     'admin/css/codemirror.min.css': [
-                        'bower_components/codemirror/lib/codemirror.css',
-                        'bower_components/codemirror/addon/lint/lint.css'
+                        'node_modules/codemirror/lib/codemirror.css',
+                        'node_modules/codemirror/addon/lint/lint.css'
                     ],
-                    'public/css/compare.min.css': [
-                        'public/css/src/compare.css'
+                    'public/css/critical-css-editor.min.css': [
+                        'admin/css/codemirror.min.css',
+                        'public/css/src/critical-css-editor.css'
                     ],
                     'public/css/extractfull.min.css': [
                         'public/css/src/extractfull.css'
@@ -389,10 +408,10 @@ module.exports = function(grunt) {
                 src: 'node_modules/lazyloadxt/package.json',
                 dest: 'public/js/src/lazyloadxt_package.json'
             },
-            loadcss_package: {
+            /*loadcss_package: {
                 src: 'bower_components/loadcss/package.json',
                 dest: 'public/js/src/loadcss_package.json'
-            },
+            },*/
             serviceworker: {
                 src: 'public/js/pwa-serviceworker.js',
                 dest: '../test-blog/abtf-pwa.js'
@@ -426,7 +445,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['uglify', 'closure-compiler', 'cssmin',
         'copy:webfont_package',
         'copy:jquery_lazyxt_package',
-        'copy:loadcss_package',
+        //'copy:loadcss_package',
         'copy:serviceworker',
         'copy:serviceworker_debug'
     ]);

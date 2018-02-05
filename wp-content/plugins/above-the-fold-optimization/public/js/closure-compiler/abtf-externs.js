@@ -2,6 +2,7 @@
 window.Abtf;
 window.Abtf.offline;
 window.Abtf.push;
+window.Abtf.mousedown;
 CustomEvent;
 window.document;
 
@@ -12,10 +13,18 @@ window.WebFontConfig;
 window.WebFontConfig.google;
 window.WebFontConfig.google.families;
 
+window.extractCriticalCSS;
+window.extractFullCSS;
+
 window.watch;
 window.unwatch;
 window.$;
 window.jQuery;
+window.jQuery.on;
+window.jQuery().on;
+$.on;
+$().on;
+window.$.on;
 window.$.noConflict;
 window.jQuery.noConflict;
 jQuery.noConflict;
@@ -29,12 +38,17 @@ jQuery.trigger;
 jQuery.addClass;
 jQuery.removeClass;
 
+console.groupCollapsed;
+console.groupEnd;
+console.log;
+
 // debug related
 window.Abtf.localUrl;
 
 pwaConfig.policy;
 pwaConfig.preload;
 pwaConfig.start_url;
+pwaConfig.cache_version;
 
 policyMatch.strategy;
 policyMatch.offline;
