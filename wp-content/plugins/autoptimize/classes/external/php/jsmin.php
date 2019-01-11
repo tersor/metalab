@@ -54,6 +54,8 @@
  * @link http://code.google.com/p/jsmin-php/
  */
 
+// This is from https://github.com/mrclay/jsmin-php 2.3.2
+
 class JSMin {
     const ORD_LF            = 10;
     const ORD_SPACE         = 32;
@@ -200,6 +202,7 @@ class JSMin {
                     for(;;) {
                         $this->output .= $this->a;
                         $this->lastByteOut = $this->a;
+
                         $this->a = $this->get();
                         if ($this->a === $this->b) { // end quote
                             break;
@@ -215,6 +218,7 @@ class JSMin {
                         if ($this->a === '\\') {
                             $this->output .= $this->a;
                             $this->lastByteOut = $this->a;
+
                             $this->a = $this->get();
                             $str .= $this->a;
                         }
