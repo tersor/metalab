@@ -22,6 +22,15 @@ class EP_Config {
 	public $option_host = false;
 
 	/**
+	 * True if EP_INDEX_PREFIX has been set via wp-config or false.
+	 *
+	 * @since 2.5
+	 *
+	 * @var bool
+	 */
+	public static $option_prefix = false;
+
+	/**
 	 * Get a singleton instance of the class
 	 *
 	 * @since 0.1.0
@@ -61,12 +70,12 @@ class EP_Config {
 	 */
 	public function is_indexing_wpcli() {
 		if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-			$index_meta = get_site_option( 'ep_index_meta', false );
+			$is_indexing = (bool) get_site_transient( 'ep_wpcli_sync' );
 		} else {
-			$index_meta = get_option( 'ep_index_meta', false );
+			$is_indexing = (bool) get_transient( 'ep_wpcli_sync' );
 		}
 
-		return apply_filters( 'ep_is_indexing_wpcli', ( ! empty( $index_meta ) && ! empty( $index_meta['wpcli'] ) ) );
+		return apply_filters( 'ep_is_indexing_wpcli', $is_indexing );
 	}
 
 	/**
@@ -85,7 +94,52 @@ class EP_Config {
 			$host = get_option( 'ep_host', false );
 		}
 
-		return $host;
+		return apply_filters( 'ep_host', $host );
+	}
+
+	/**
+	 * Retrieve the appropriate index prefix. Will default to EP_INDEX_PREFIX constant if it exists
+	 * AKA Subscription ID.
+	 *
+	 * @since 2.5
+	 * @return string|bool
+	 */
+	public function get_index_prefix() {
+
+		if ( defined( 'EP_INDEX_PREFIX' ) && EP_INDEX_PREFIX ) {
+			return EP_INDEX_PREFIX;
+		} elseif ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK && ep_is_epio() ) {
+			$prefix = get_site_option( 'ep_prefix', false );
+		} elseif ( ep_is_epio() ) {
+			$prefix = get_option( 'ep_prefix', false );
+		} else {
+			$prefix = '';
+		}
+
+		return apply_filters( 'ep_index_prefix', $prefix );
+	}
+
+	/**
+	 * Retrieve the EPIO subscription credentials.
+	 *
+	 * @since 2.5
+	 * @return array
+	 */
+	public function get_epio_credentials() {
+
+		if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK && ep_is_epio() ) {
+			$credentials = ep_sanitize_credentials( get_site_option( 'ep_credentials', false ) );
+		} elseif ( ep_is_epio() ) {
+			$credentials = ep_sanitize_credentials( get_option( 'ep_credentials', false ) );
+		} else {
+			$credentials = [ 'username' => '', 'token' => '' ];
+		}
+
+		if ( ! is_array( $credentials ) ) {
+			return [ 'username' => '', 'token' => '' ];
+		}
+
+		return $credentials;
 	}
 
 	/**
@@ -127,6 +181,8 @@ class EP_Config {
 
 		if ( defined( 'EP_INDEX_PREFIX' ) && EP_INDEX_PREFIX ) {
 			$index_name = EP_INDEX_PREFIX . $index_name;
+		} elseif ( $prefix = $this->get_index_prefix() ) {
+			$index_name = $prefix . $index_name;
 		}
 
 		return apply_filters( 'ep_index_name', $index_name, $blog_id );
@@ -196,6 +252,26 @@ class EP_Config {
 		return false;
 
 	}
+
+	/**
+	 * Setup credentials for future usage.
+	 */
+	public function setup_credentials(){
+		if ( ! defined( 'EP_INDEX_PREFIX' ) ) {
+			$index_prefix = ep_get_index_prefix();
+			if ( $index_prefix ) {
+				$index_prefix = ( ep_is_epio() && '-' !== substr( $index_prefix, - 1 ) ) ? $index_prefix . '-' : $index_prefix;
+				define( 'EP_INDEX_PREFIX', $index_prefix );
+			}
+		} else {
+			self::$option_prefix = true;
+		}
+
+		if ( ! defined( 'ES_SHIELD' ) && ep_is_epio() ) {
+			$credentials = ep_get_epio_credentials();
+			define( 'ES_SHIELD', $credentials['username'] . ':' . $credentials['token'] );
+		}
+	}
 }
 
 EP_Config::factory();
@@ -206,6 +282,14 @@ EP_Config::factory();
 
 function ep_get_host() {
 	return EP_Config::factory()->get_host();
+}
+
+function ep_get_index_prefix() {
+	return EP_Config::factory()->get_index_prefix();
+}
+
+function ep_get_epio_credentials() {
+	return EP_Config::factory()->get_epio_credentials();
 }
 
 function ep_host_by_option() {
@@ -238,4 +322,34 @@ function ep_get_network_alias() {
 
 function ep_is_network_activated( $plugin ) {
 	return EP_Config::factory()->is_network( $plugin );
+}
+
+// Check if the host is ElasticPress.io.
+function ep_is_epio() {
+	return preg_match( '#elasticpress\.io#i', ep_get_host() );
+}
+
+/**
+ * Sanitize EPIO credentials prior to storing them.
+ *
+ * @param array $credentials Array containing username and token.
+ *
+ * @return array
+ */
+function ep_sanitize_credentials( $credentials ) {
+	if ( ! is_array( $credentials ) ) {
+		return [ 'username' => '', 'token' => '' ];
+	}
+
+	return [
+		'username' => ( isset( $credentials['username'] ) ) ? sanitize_text_field( $credentials['username'] ) : '',
+		'token'    => ( isset( $credentials['token'] ) ) ? sanitize_text_field( $credentials['token'] ) : '',
+	];
+}
+
+/**
+ * Prepare credentials if they are set for future use.
+ */
+function ep_setup_credentials(){
+	EP_Config::factory()->setup_credentials();
 }

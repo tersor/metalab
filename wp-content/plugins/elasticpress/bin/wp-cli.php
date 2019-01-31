@@ -312,7 +312,7 @@ class ElasticPress_CLI_Command extends WP_CLI_Command {
 	/**
 	 * Index all posts for a site or network wide
 	 *
-	 * @synopsis [--setup] [--network-wide] [--posts-per-page] [--nobulk] [--offset] [--show-bulk-errors] [--post-type]
+	 * @synopsis [--setup] [--network-wide] [--posts-per-page] [--nobulk] [--offset] [--show-bulk-errors] [--post-type] [--post-ids]
 	 *
 	 * @param array $args
 	 *
@@ -483,6 +483,17 @@ class ElasticPress_CLI_Command extends WP_CLI_Command {
 			$post_type = array_values( $post_type );
 		}
 
+		$post_in = null;
+
+		if ( ! empty( $args['post-ids'] ) ) {
+			$post_in = explode( ',', $args['post-ids'] );
+			$post_in = array_map( 'trim', $post_in );
+			$post_in = array_map( 'absint', $post_in );
+			$post_in = array_filter( $post_in );
+
+			$posts_per_page = count($post_in);
+		}
+
 		/**
 		 * Create WP_Query here and reuse it in the loop to avoid high memory consumption.
 		 */
@@ -498,27 +509,32 @@ class ElasticPress_CLI_Command extends WP_CLI_Command {
 				'ignore_sticky_posts'    => true,
 				'orderby'                => 'ID',
 				'order'                  => 'DESC',
+				'fields'                 => 'ids',
 			) );
+
+			if ( $post_in ) {
+				$args['post__in'] = $post_in;
+			}
+
 			$query->query( $args );
 
 			if ( $query->have_posts() ) {
 
-				while ( $query->have_posts() ) {
-					$query->the_post();
+				foreach ( $query->posts as $post_id ) {
 
 					if ( $no_bulk ) {
 						// index the posts one-by-one. not sure why someone may want to do this.
-						$result = ep_sync_post( get_the_ID() );
+						$result = ep_sync_post( $post_id );
 
 						$this->reset_transient();
 
-						do_action( 'ep_cli_post_index', get_the_ID() );
+						do_action( 'ep_cli_post_index', $post_id );
 					} else {
-						$result = $this->queue_post( get_the_ID(), $query->post_count, $show_bulk_errors );
+						$result = $this->queue_post( $post_id, $query->post_count, $show_bulk_errors );
 					}
 
 					if ( ! $result ) {
-						$errors[] = get_the_ID();
+						$errors[] = $post_id;
 					} elseif ( true === $result || isset( $result->_index ) ) {
 						$synced ++;
 					}
